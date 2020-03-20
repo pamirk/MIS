@@ -1,0 +1,273 @@
+create table leaves
+(
+    lv_id          bigint primary key auto_increment,
+    employee_id    bigint       not null,
+    start_date     datetime     not null,
+    end_date       datetime     not null,
+    status         varchar(255) not null,
+    description    text,
+    reply_note     text,
+    entertain_by   bigint,
+    entertain_on   datetime,
+    last_update_ts timestamp default now(),
+    foreign key (employee_id) references employees (employee_id) on delete cascade,
+    foreign key (entertain_by) references employees (employee_id) on delete cascade
+);
+
+create table documents
+(
+    doc_id         bigint primary key auto_increment,
+    document_name  text   not null,
+    document_link  text   not null,
+    employee_id    bigint not null,
+    enterby_id     bigint not null,
+    last_update_ts timestamp default now(),
+    foreign key (enterby_id) references employees (employee_id) on delete cascade,
+    foreign key (employee_id) references employees (employee_id) on delete cascade
+);
+CREATE TABLE `Jtubewells`
+(
+    `id`                int(11) DEFAULT NULL,
+    `name`              text,
+    `department_id`     int(11) DEFAULT NULL,
+    `category`          int(11) DEFAULT NULL,
+    `pipe_diameter`     text,
+    `district`          text,
+    `division`          text,
+    `subdivision`       text,
+    `driven_by`         text,
+    `run_by`            text,
+    `installation_date` text,
+    `tubewell_diameter` text,
+    `rock_type`         text,
+    `lat`               double  DEFAULT NULL,
+    `lng`               double  DEFAULT NULL,
+    `elevation_feet`    text,
+    `capacity`          text,
+    `type`              text,
+    `status`            int(11) DEFAULT NULL,
+    `remarks`           text
+);
+create TABLE trainings
+(
+    id             bigint auto_increment primary key,
+    title          text     not null,
+    description    text,
+    offered_by     text,
+    funded_by      text,
+    category       text,
+    address        text,
+    start_date     datetime not null,
+    end_date       datetime not null,
+    last_update_ts timestamp default now()
+);
+create table employee_trainings
+(
+    et_id          bigint auto_increment primary key,
+    employee_id    bigint                              not null,
+    t_id           bigint                              not null,
+    last_update_ts timestamp default CURRENT_TIMESTAMP not null,
+    foreign key (employee_id) references employees (employee_id) on delete cascade,
+    foreign key (t_id) references trainings (id) on delete cascade
+);
+SELECT t.category, COUNT(t.category)
+from employee_trainings as et
+         left join trainings t on et.t_id = t.id
+where employee_id = 14
+group by t.category;
+
+SELECT t.id,
+       d2.department_name,
+       count(d2.department_name),
+       d.des_scale,
+       count(d.des_scale)               as s,
+       sum(1)                           as Total,
+       sum(IF(gender = 'male', 1, 0))   as Males,
+       sum(IF(gender = 'female', 1, 0)) as Females
+from trainings as t
+         left join employee_trainings et on t.id = et.t_id
+         left join employees e on et.employee_id = e.employee_id
+         inner join employees_designations ed on (e.employee_id = ed.employee_id && is_active)
+         inner join designations d on ed.des_id = d.des_id
+         inner join department d2 on d.department_id = d2.department_id
+
+where t_id = 1
+group by d2.department_name, des_scale;
+
+SELECT d2.department_name, count(d2.department_name) AS DepartCount, d.des_scale, count(d.des_scale) as s
+from trainings as t
+         inner join employee_trainings et on t.id = et.t_id
+         inner join employees e on et.employee_id = e.employee_id
+         inner join employees_designations ed on (e.employee_id = ed.employee_id && is_active)
+         inner join designations d on ed.des_id = d.des_id
+         inner join department d2 on d.department_id = d2.department_id
+where t_id = 1
+group by d2.department_name, des_scale;
+
+SELECT d2.department_name, count(d2.department_name) AS DepartCount
+from trainings as t
+         inner join employee_trainings et on t.id = et.t_id
+         inner join employees e on et.employee_id = e.employee_id
+         inner join employees_designations ed on (e.employee_id = ed.employee_id && is_active)
+         inner join designations d on ed.des_id = d.des_id
+         inner join department d2 on d.department_id = d2.department_id
+where t_id = 1
+group by d2.department_name;
+
+SELECT category,
+       sum(IF(gender = 'male', 1, 0))   as Males,
+       sum(IF(gender = 'female', 1, 0)) as Females
+from trainings as t
+         left join employee_trainings et on t.id = et.t_id
+         left join employees e on et.employee_id = e.employee_id
+group by category;
+
+SELECT ts.*, t.tubewell_name as Tubewell, sd.sub_div_name as Sub_Division, d.div_title as Division
+from transfers ts
+         inner join tubewells t on ts.tubewell_id = t.tubewell_id
+         inner join sub_division sd on t.sub_div_id = sd.sd_id
+         inner join divisions d on sd.div_id = d.div_id
+where employee_id = ${req.params.id}
+order by is_active DESC;
+
+SELECT COUNT(*) as forward
+FROM complains_reporting_body
+         INNER JOIN consumer_complains_table
+                    ON complains_reporting_body.complain_id = consumer_complains_table.complain_id
+WHERE complains_reporting_body.forwards_by = 14
+  AND consumer_complains_table.complain_status NOT LIKE 'RESOLVED'
+  AND NOW() > complains_reporting_body.suggested_date_reply
+  AND (suggested_date_reply NOT LIKE 'NOT DECIDED')
+  AND is_delay = '0';
+CREATE TABLE `consumers_record`
+(
+    `con_id`        int(15)  NOT NULL primary key AUTO_INCREMENT,
+    `wasa_acc_no`   text     NOT NULL,
+    `name`          text DEFAULT NULL,
+    `father_name`   text DEFAULT NULL,
+    `address`       text     NOT NULL,
+    `category`      text     NOT NULL,
+    `bill_amount`   int(255) NOT NULL,
+    `amount_to_pay` int(255) NOT NULL
+);
+CREATE TABLE `complain_resolve`
+(
+    `resolve_id`      varchar(40) NOT NULL primary key,
+    `complain_id`     varchar(40) NOT NULL,
+    `resolve_by`      bigint(20)  NOT NULL,
+    `resolve_message` text        NOT NULL,
+    `created_at`      datetime    NOT NULL DEFAULT current_timestamp,
+    foreign key (complain_id) references consumer_complains_table (complain_id) on delete cascade,
+    foreign key (resolve_by) references employees (employee_id) on delete cascade
+);
+create table leaves
+(
+    lv_id          bigint primary key auto_increment,
+    employee_id    bigint       not null,
+    lt_id          bigint       not null default 1,
+    start_date     datetime     not null,
+    end_date       datetime     not null,
+    status         varchar(255) not null,
+    description    text,
+    reply_note     text,
+    entertain_by   bigint,
+    entertain_on   datetime,
+    last_update_ts timestamp             default now(),
+    foreign key (employee_id) references employees (employee_id) on delete cascade,
+    foreign key (entertain_by) references employees (employee_id) on delete cascade,
+    foreign key (lt_id) references leave_types (lt_id) on delete cascade
+
+);
+create table leave_types
+(
+    lt_id          bigint primary key auto_increment,
+    name           varchar(255) not null,
+    count          int          not null,
+    max            int,
+    last_update_ts timestamp default now()
+);
+create view casual_leaves as
+select ra.complains_reporting_id, group_concat(concat_ws(':', reporting_attachment_name) separator ',') as names
+from reporting_attachments ra
+group by ra.complains_reporting_id;
+
+select count(L.lv_id) count
+from employees E
+         LEFT JOIN leaves L on L.employee_id = E.employee_id
+         LEFT JOIN leave_types lt on L.lt_id = lt.lt_id
+where E.employee_id = 14
+  and L.status = 'Approved'
+  and L.lt_id = 1
+  and (entertain_on between DATE_FORMAT(NOW(), '%Y-01-01') AND NOW())
+union
+select count(L.lv_id) as count
+from employees E
+         LEFT JOIN leaves L on L.employee_id = E.employee_id
+         LEFT JOIN leave_types lt on L.lt_id = lt.lt_id
+where E.employee_id = 14
+  and L.status = 'Approved'
+  and L.lt_id = 2;
+
+
+
+SELECT *
+from leaves
+where employee_id = 14
+  and status = 'Approved'
+order by last_update_ts desc;
+
+SELECT COUNT(*) as available
+FROM consumers_record
+WHERE wasa_acc_no = '100-01-003';
+
+select ra.complains_reporting_id, group_concat(concat_ws(':', reporting_attachment_name) separator ',') as names
+from reporting_attachments ra
+group by ra.complains_reporting_id
+
+
+SELECT t.tubewell_id,
+       sub_div_id,
+       tubewell_name,
+       rock_type,
+       lat,
+       lng,
+       install_date,
+       elevation,
+       status,
+       is_office,
+       phone1,
+       last_update_ts,
+       address,
+       ts_id,
+       status_date,
+       status_title,
+       is_active,
+       status_description,
+       status_date_change
+from tubewells t
+         inner join tubewell_status ts on t.tubewell_id = ts.tubewell_id and is_active = 1
+order by status_date_change DESC;
+
+select *
+from tubewells;
+
+select date_format(entertain_on, '%Y-%m-%d') date, COUNT(entertain_on) count
+from leaves
+WHERE status = 'Approved'
+  and YEAR(entertain_on) = YEAR(CURDATE())
+group by date_format(entertain_on, '%Y-%m-%d');
+
+
+SELECT leaves.*, e.full_name
+from leaves
+         left join employees e on leaves.employee_id = e.employee_id
+where leaves.employee_id = 14
+order by last_update_ts desc;
+
+SELECT * FROM addresses where employee_id = 14;
+SELECT *
+FROM addresses
+where employee_id = 14
+order by is_current desc;
+
+

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="pk@localhost" uuid="9d254a90-5df1-4e1e-a34e-b77258b53955">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3306/pk</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="@heroku_clear_db" uuid="d9416ac6-2402-4ef6-a61c-5b88f2744a95">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://us-cdbr-iron-east-04.cleardb.net/heroku_436891b58c83c67</jdbc-url>
+    </data-source>
+  </component>
+</project>

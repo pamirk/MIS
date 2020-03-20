@@ -1,0 +1,520 @@
+create table countries
+(
+    country_id     bigint auto_increment
+        primary key,
+    country_name   varchar(100)                        not null,
+    last_update_ts timestamp default CURRENT_TIMESTAMP not null
+);
+
+create table cities
+(
+    city_id        bigint auto_increment
+        primary key,
+    city_name      varchar(100)                        not null,
+    country_id     bigint                              null,
+    last_update_ts timestamp default CURRENT_TIMESTAMP not null,
+    constraint cities_ibfk_1
+        foreign key (country_id) references countries (country_id)
+            on delete cascade
+);
+
+create index country_id
+    on cities (country_id);
+
+create table department
+(
+    department_id          bigint auto_increment
+        primary key,
+    department_name        varchar(100)                           not null,
+    department_description varchar(100)                           not null,
+    last_update_ts         timestamp    default CURRENT_TIMESTAMP not null,
+    department_city_name   varchar(100) default 'Quetta'          null
+);
+
+create table designations
+(
+    des_id         int auto_increment
+        primary key,
+    des_title      varchar(100)                        not null,
+    des_scale      varchar(100)                        not null,
+    department_id  bigint                              not null,
+    last_update_ts timestamp default CURRENT_TIMESTAMP not null,
+    constraint designations_ibfk_1
+        foreign key (department_id) references department (department_id)
+            on delete cascade
+);
+
+create index department_id
+    on designations (department_id);
+
+create table divisions
+(
+    div_id          bigint auto_increment
+        primary key,
+    div_title       varchar(255)     not null,
+    div_description text             null,
+    city_id         bigint default 1 null,
+    constraint divisions_ibfk_1
+        foreign key (city_id) references cities (city_id)
+            on delete cascade
+);
+
+create index city_id
+    on divisions (city_id);
+
+create table employees
+(
+    employee_id      bigint auto_increment
+        primary key,
+    cnic             varchar(100)                        not null,
+    full_name        varchar(100)                        not null,
+    father_name      varchar(100)                        not null,
+    appointment_date date                                null,
+    birth_date       date                                not null,
+    gender           varchar(20)                         null,
+    email            varchar(100)                        not null,
+    local            varchar(100)                        not null,
+    employee_photo   varchar(200)                        null,
+    last_update_ts   timestamp default CURRENT_TIMESTAMP not null,
+    constraint cnic
+        unique (cnic),
+    constraint email
+        unique (email)
+);
+
+create table addresses
+(
+    address_id        bigint auto_increment
+        primary key,
+    current_address   varchar(200)                        not null,
+    permanent_address varchar(200)                        not null,
+    postal_code       varchar(100)                        not null,
+    phone_number      varchar(100)                        not null,
+    phone_number2     varchar(100)                        null,
+    employee_id       bigint                              not null,
+    city_id           bigint                              null,
+    last_update_ts    timestamp default CURRENT_TIMESTAMP not null,
+    constraint addresses_ibfk_1
+        foreign key (city_id) references cities (city_id)
+            on delete cascade,
+    constraint addresses_ibfk_2
+        foreign key (employee_id) references employees (employee_id)
+            on delete cascade
+);
+
+create index city_id
+    on addresses (city_id);
+
+create index employee_id
+    on addresses (employee_id);
+
+create table employee_login
+(
+    employee_login_id  bigint auto_increment
+        primary key,
+    employee_id        bigint                               not null,
+    employee_is_active tinyint(1) default 0                 null,
+    employee_password  text                                 not null,
+    last_update_ts     timestamp  default CURRENT_TIMESTAMP not null,
+    is_admin           tinyint    default 0                 null,
+    constraint employee_login_ibfk_1
+        foreign key (employee_id) references employees (employee_id)
+            on delete cascade
+);
+
+create index employee_id
+    on employee_login (employee_id);
+
+create table employees_designations
+(
+    emp_des_id         bigint auto_increment
+        primary key,
+    employee_id        bigint                               null,
+    des_id             int                                  null,
+    order_date         date                                 null,
+    appointment_date   date                                 null,
+    order_letter_photo varchar(200)                         null,
+    is_active          tinyint(1) default 1                 null,
+    last_update_ts     timestamp  default CURRENT_TIMESTAMP not null,
+    constraint employees_designations_ibfk_1
+        foreign key (employee_id) references employees (employee_id)
+            on delete cascade,
+    constraint employees_designations_ibfk_2
+        foreign key (des_id) references designations (des_id)
+            on delete cascade
+);
+
+create index des_id
+    on employees_designations (des_id);
+
+create index employee_id
+    on employees_designations (employee_id);
+
+create table employees_trainings
+(
+    training_id         bigint auto_increment
+        primary key,
+    employee_id         bigint                              not null,
+    train_name          varchar(100)                        not null,
+    train_description   varchar(200)                        null,
+    train_start_date    date                                not null,
+    train_end_date      date                                not null,
+    train_location_name varchar(100)                        not null,
+    certificate_photo   varchar(200)                        null,
+    last_update_ts      timestamp default CURRENT_TIMESTAMP not null,
+    constraint employees_trainings_ibfk_1
+        foreign key (employee_id) references employees (employee_id)
+            on delete cascade
+);
+
+create index employee_id
+    on employees_trainings (employee_id);
+
+create table jtubewells
+(
+    id                int    null,
+    name              text   null,
+    department_id     int    null,
+    category          int    null,
+    pipe_diameter     text   null,
+    district          text   null,
+    division          text   null,
+    subdivision       text   null,
+    driven_by         text   null,
+    run_by            text   null,
+    installation_date text   null,
+    tubewell_diameter text   null,
+    rock_type         text   null,
+    lat               double null,
+    lng               double null,
+    elevation_feet    text   null,
+    capacity          text   null,
+    type              text   null,
+    status            int    null,
+    remarks           text   null
+);
+
+create table leaves
+(
+    lv_id          bigint auto_increment
+        primary key,
+    employee_id    bigint                              not null,
+    start_date     datetime                            not null,
+    end_date       datetime                            not null,
+    status         varchar(255)                        not null,
+    description    text                                null,
+    reply_note     text                                null,
+    entertain_by   bigint                              null,
+    entertain_on   datetime                            null,
+    last_update_ts timestamp default CURRENT_TIMESTAMP not null,
+    constraint leaves_ibfk_1
+        foreign key (employee_id) references employees (employee_id)
+            on delete cascade,
+    constraint leaves_ibfk_2
+        foreign key (entertain_by) references employees (employee_id)
+            on delete cascade
+);
+
+create index employee_id
+    on leaves (employee_id);
+
+create index entertain_by
+    on leaves (entertain_by);
+
+create table retirements
+(
+    retirement_id     bigint auto_increment
+        primary key,
+    emp_des_id        bigint                              not null,
+    retirement_date   date                                not null,
+    order_photo       varchar(200)                        null,
+    retirement_nature varchar(200)                        null,
+    last_update_ts    timestamp default CURRENT_TIMESTAMP not null,
+    constraint retirements_ibfk_1
+        foreign key (emp_des_id) references employees_designations (emp_des_id)
+            on delete cascade
+);
+
+create index emp_des_id
+    on retirements (emp_des_id);
+
+create table sub_division
+(
+    sd_id        bigint auto_increment
+        primary key,
+    div_id       bigint not null,
+    sub_div_name text   not null,
+    description  text   not null,
+    constraint sub_division_ibfk_1
+        foreign key (div_id) references divisions (div_id)
+            on delete cascade
+);
+
+create index div_id
+    on sub_division (div_id);
+
+create table tubewells
+(
+    tubewell_id    bigint auto_increment
+        primary key,
+    sub_div_id     bigint                               not null,
+    tubewell_name  varchar(100)                         not null,
+    rock_type      varchar(100)                         null,
+    lat            varchar(100)                         null,
+    lng            varchar(100)                         null,
+    install_date   varchar(100)                         null,
+    elevation      varchar(100)                         null,
+    status         varchar(100)                         null,
+    is_office      tinyint(1) default 0                 null,
+    phone1         varchar(100)                         null,
+    last_update_ts timestamp  default CURRENT_TIMESTAMP not null,
+    address        text                                 not null,
+    constraint tubewells_ibfk_1
+        foreign key (sub_div_id) references sub_division (sd_id)
+            on delete cascade
+);
+
+create table transfers
+(
+    transfer_id        bigint auto_increment
+        primary key,
+    employee_id        bigint                               not null,
+    tubewell_id        bigint                               null,
+    description        varchar(200)                         null,
+    transfer_date      date                                 not null,
+    joining_date       date                                 not null,
+    order_letter_photo varchar(200)                         null,
+    is_active          tinyint(1) default 1                 null,
+    last_update_ts     timestamp  default CURRENT_TIMESTAMP not null,
+    constraint transfers_ibfk_1
+        foreign key (employee_id) references employees (employee_id)
+            on delete cascade,
+    constraint transfers_ibfk_2
+        foreign key (tubewell_id) references tubewells (tubewell_id)
+            on delete cascade
+);
+
+create index employee_id
+    on transfers (employee_id);
+
+create index tubewell_id
+    on transfers (tubewell_id);
+
+create table tubewell_status
+(
+    ts_id              bigint auto_increment
+        primary key,
+    tubewell_id        bigint               not null,
+    status_date        varchar(255)         not null,
+    status_title       varchar(255)         not null,
+    is_active          tinyint(1) default 1 null,
+    status_description varchar(255)         null,
+    status_date_change date                 null,
+    constraint tubewell_status_ibfk_1
+        foreign key (tubewell_id) references tubewells (tubewell_id)
+            on delete cascade
+);
+
+create index tubewell_id
+    on tubewell_status (tubewell_id);
+
+create index sub_div_id
+    on tubewells (sub_div_id);
+
+create table user_registration_table
+(
+    account_number        varchar(25)                           not null
+        primary key,
+    user_cnic             varchar(100)                          not null,
+    user_name             varchar(25)                           not null,
+    user_email            text                                  not null,
+    user_gender           varchar(10) default 'male'            null,
+    user_password         text                                  not null,
+    user_address          text                                  not null,
+    user_contact          varchar(15)                           not null,
+    user_cnic_front_image text                                  not null,
+    user_cnic_back_image  text                                  not null,
+    user_wasa_bill_image  text                                  not null,
+    created_at            timestamp   default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    constraint user_cnic
+        unique (user_cnic)
+);
+
+create table consumer_complains_table
+(
+    complain_id     varchar(40)                         not null
+        primary key,
+    account_number  varchar(40)                         not null,
+    complain_body   text                                not null,
+    complain_status text                                not null,
+    created_us      timestamp default CURRENT_TIMESTAMP not null,
+    constraint consumer_complains_table_ibfk_1
+        foreign key (account_number) references user_registration_table (account_number)
+            on delete cascade
+);
+
+create table complains_reporting_body
+(
+    complains_reporting_id varchar(40)                          not null
+        primary key,
+    complain_id            varchar(40)                          not null,
+    forwards_to            bigint                               null,
+    forwards_by            bigint                               null,
+    forwards_date          timestamp  default CURRENT_TIMESTAMP not null,
+    forwards_message       text                                 not null,
+    suggested_date_reply   text                                 not null,
+    employee_name          varchar(40)                          null,
+    is_reply               tinyint(1)                           null,
+    status                 text                                 null,
+    is_current             tinyint(1)                           null,
+    is_acknowledged        tinyint(1)                           null,
+    is_seen                tinyint(1)                           null,
+    is_public              tinyint    default 1                 null,
+    is_delay               tinyint(1) default 0                 not null,
+    constraint complains_reporting_body_ibfk_1
+        foreign key (complain_id) references consumer_complains_table (complain_id)
+            on delete cascade,
+    constraint complains_reporting_body_ibfk_2
+        foreign key (forwards_by) references employees (employee_id)
+            on delete cascade,
+    constraint complains_reporting_body_ibfk_3
+        foreign key (forwards_to) references employees (employee_id)
+            on delete cascade
+);
+
+create index complain_id
+    on complains_reporting_body (complain_id);
+
+create index forwards_by
+    on complains_reporting_body (forwards_by);
+
+create index forwards_to
+    on complains_reporting_body (forwards_to);
+
+create table consumer_attachment
+(
+    attachment_id        varchar(40)                         not null
+        primary key,
+    complain_id          varchar(40)                         not null,
+    attachment_name      text                                not null,
+    attachment_file_type text                                not null,
+    created_at           timestamp default CURRENT_TIMESTAMP not null,
+    constraint consumer_attachment_ibfk_1
+        foreign key (complain_id) references consumer_complains_table (complain_id)
+            on delete cascade
+);
+
+create index complain_id
+    on consumer_attachment (complain_id);
+
+create index account_number
+    on consumer_complains_table (account_number);
+
+create table reporting_attachments
+(
+    reporting_attachments_id       varchar(40)                         not null
+        primary key,
+    complains_reporting_id         varchar(40)                         not null,
+    reporting_attachment_name      text                                not null,
+    reporting_attachment_file_type text                                not null,
+    reporting_created_at           timestamp default CURRENT_TIMESTAMP not null,
+    constraint reporting_attachments_ibfk_1
+        foreign key (complains_reporting_id) references complains_reporting_body (complains_reporting_id)
+            on delete cascade
+);
+
+create index complains_reporting_id
+    on reporting_attachments (complains_reporting_id);
+
+create view vw_consumer_attachment as
+select `ca`.`complain_id`                                                 AS `complain_id`,
+       group_concat(concat_ws(':', `ca`.`attachment_name`) separator ',') AS `attachments`
+from consumer_attachment `ca`
+group by `ca`.`complain_id`;
+
+create view vw_responses as
+select `crb`.`complains_reporting_id` AS `complains_reporting_id`,
+       `crb`.`complain_id`            AS `complain_id`,
+       `crb`.`forwards_to`            AS `forwards_to`,
+       `crb`.`forwards_by`            AS `forwards_by`,
+       `crb`.`forwards_date`          AS `forwards_date`,
+       `crb`.`forwards_message`       AS `forwards_message`,
+       `crb`.`suggested_date_reply`   AS `suggested_date_reply`,
+       `crb`.`employee_name`          AS `employee_name`,
+       `crb`.`is_reply`               AS `is_reply`,
+       `crb`.`status`                 AS `status`,
+       `crb`.`is_current`             AS `is_current`,
+       `crb`.`is_acknowledged`        AS `is_acknowledged`,
+       `crb`.`is_seen`                AS `is_seen`,
+       `crb`.`is_public`              AS `is_public`,
+       `ra`.`attachments`             AS `attachments`
+from (complains_reporting_body `crb`
+         left join tempView `ra`
+                   on ((`crb`.`complains_reporting_id` = `ra`.`complains_reporting_id`)));
+
+
+create view tempView as
+select `ra`.`complains_reporting_id`                                                AS `complains_reporting_id`,
+       group_concat(concat_ws(':', `ra`.`reporting_attachment_name`) separator ',') AS `attachments`
+from `reporting_attachments` `ra`
+group by `ra`.`complains_reporting_id`;
+
+create table complain_resolve
+(
+    resolve_id      varchar(40)                        not null
+        primary key,
+    complain_id     varchar(40)                        not null,
+    resolve_by      bigint                             not null,
+    resolve_message text                               not null,
+    created_at      datetime,
+    foreign key (complain_id) references consumer_complains_table (complain_id) on delete cascade,
+    foreign key (resolve_by) references employees (employee_id) on delete cascade
+);
+
+
+create table trainings
+(
+    id             bigint auto_increment
+        primary key,
+    title          text                                not null,
+    description    text                                null,
+    offered_by     text                                null,
+    funded_by      text                                null,
+    category       text                                null,
+    address        text                                null,
+    start_date     datetime                            not null,
+    end_date       datetime                            not null,
+    last_update_ts timestamp default CURRENT_TIMESTAMP not null
+);
+
+
+create table employee_trainings
+(
+    et_id          bigint auto_increment primary key,
+    employee_id    bigint                              not null,
+    t_id           bigint                              not null,
+    last_update_ts timestamp default CURRENT_TIMESTAMP not null,
+    foreign key (employee_id) references employees (employee_id) on delete cascade,
+    foreign key (t_id) references trainings (id) on delete cascade
+);
+create table consumers_record
+(
+    con_id        int(15) auto_increment
+        primary key,
+    wasa_acc_no   text     not null,
+    name          text     null,
+    father_name   text     null,
+    address       text     not null,
+    category      text     not null,
+    bill_amount   int(255) not null,
+    amount_to_pay int(255) not null
+);
+
+INSERT INTO `consumers_record` (`con_id`, `wasa_acc_no`, `name`, `father_name`, `address`, `category`, `bill_amount`, `amount_to_pay`) VALUES
+(1, '100-01-001A', 'C&W DEPARTMENT (WAHDAT COLONY)', '', 'WAHDAT COLONY', 'GOV', 16875, 5668313),
+(2, '100-01-002', 'EXECUTIVE ENGINEER PHED', '', 'AYOUB STADIUM QUETTA', 'GOV', 750, 101850),
+(3, '100-01-002A', 'BOLAN MEDICAL COMPLEX HOSPITAL', '', '', 'GOV', 2400, 253440),
+(4, '100-01-003', 'SARDAR BAHADUR KHAN SANITORIUM', '(WOMAN UNIVERSITY)', 'BREWERY ROAD QUETTA', 'GOV', 12400, 2496120);
+
+select * from consumers_record;
+select * from user_registration_table;
