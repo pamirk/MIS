@@ -1,33 +1,42 @@
-import {Button, Form, Col, Icon, Input, message, Switch, Card, Checkbox} from 'antd';
+import {Button, Form, Col, Icon, Input, message, Switch, Card, Checkbox, Modal} from 'antd';
 import * as React from 'react';
 import {Component} from 'react';
 import axios from "axios";
 import baseUrl from "../../../utils/baseUrl";
 import {Check, Lock} from "react-feather";
 import {Table} from "reactstrap";
+import {useState} from "react";
+import {useEffect} from "react";
+import {cardTitleIcon} from "../../Common/UI";
+import moment from "moment";
+import Link from "next/link";
+import EditDesignationDetails from "./EditDesignationDetails";
+import EditAccountSettings from "./EditAccountSettings";
+import ResetPassword from "./ResetPassword";
 
-class AccountSettings extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            loading: false
-        };
-    }
+function AccountSettings({id}) {
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState(null);
+    const [editModel, setEditModel] = useState(false);
+    const [resetPasswordModel, setResetPassword] = useState(false);
 
-    componentDidMount() {
-        this.getData()
-
-    }
-
-    onStatusChange = (checked) => {
-        this.setState({
-            status: checked
-        });
-
-        console.log(`switch to ${checked}`);
-        this.postStatusData(checked);
+    const hideEditModal = () => setEditModel(false);
+    const showEditModal = () => setEditModel(true);
+    const hideResetPasswordModal = () => setResetPassword(false);
+    const showResetPasswordModal = () => setResetPassword(true);
+    const handleSuccess = () => {
+        setEditModel(false)
+        message.success("Updated settings")
     };
-    handleSubmit = (e) => {
+    const handleResetPassSuccess = () => {
+        setResetPassword(false)
+        message.success("Password Updated")
+    };
+
+    useEffect(() => {
+        getData()
+    }, []);
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         this.setState({loading: true,});
@@ -51,7 +60,7 @@ class AccountSettings extends Component {
             });
         this.password.value = ''
     };
-    postStatusData = (checked) => {
+    const postStatusData = (checked) => {
         this.setState({loading: true,});
         const fd = new FormData();
         fd.append('id', this.props.id);
@@ -72,204 +81,221 @@ class AccountSettings extends Component {
 
             })
     };
-
-    getData = () => {
-        this.setState({loading: true,});
-
-
-        fetch(baseUrl + `/api/get_employee_status/${this.id}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-            .then(data => data.json())
-            .then(data => {
-                console.warn(data);
-                if (data.status === 200) {
-                    console.warn(data);
-                    this.setState({
-                        active: (data.is_active === 1),
-                        loading: false,
-                        ploading: false,
-                    });
-                }
-            })
+    const getData = async () => {
+        setLoading(true);
+        const url = `${baseUrl}/api/get_employee_status/${id}`;
+        const response = await axios.get(url);
+        setLoading(false);
+        const data = response.data;
+        console.log("data", data);
+        if (data.status === 200) {
+            setData(data.rows);
+        } else if (data.status === 500) {
+            message.error(data.err)
+        }
     };
+    return (
+        <>
+            {data ?
+                <Card bordered={false}
+                      title={cardTitleIcon('Account Settings', "edit", showEditModal)}>
+                    <div className="users-page-view-table">
+                        <div className="d-flex user-info">
+                            <div className="user-info-title font-weight-bold">Status last Changed</div>
+                            <div>{moment(data.last_update_ts).format('YYYY-MM-DD')}</div>
+                        </div>
+                        <div className="d-flex user-info">
+                            <div className="user-info-title font-weight-bold">Status</div>
+                            <div>{(data.employee_is_active === 1) ? 'Active' : 'Disabled'}</div>
+                        </div>
+                        <div className="d-flex user-info">
+                            <div className="user-info-title font-weight-bold">Role</div>
+                            <div className="text-truncate">{data.is_admin === 0 ? "Employee" : "Admin"}</div>
+                        </div>
+                    </div>
+                    <Button size={"large"} className='mr-5' onClick={showResetPasswordModal}
+                            style={{backgroundColor: '#0a8080', color: 'white'}}>Reset Password</Button>
+                </Card>
+                : <Card bordered={false}
+                        title={cardTitleIcon('Add Account Settings', "plus", showEditModal)}/>
+            }
 
-    render() {
-        return (
-            <>
-
-                <Form>
-                    <>
-                        <Col sm={{size: 18, offset: 2}}>
-                            {(!this.state.ploading) &&
-                            <Switch loading={this.state.loading} title='Status '
-                                    onChange={this.onStatusChange}
-                                    checkedChildren={<Icon type="check"/>}
-                                    unCheckedChildren={<Icon type="close"/>}/>
-                            }
-                        </Col>
-                    </>
-                    <>
-                        <Col sm={{size: 18, offset: 2}}>
-                            <Input innerRef={node => this.password = node}
-                                   type="password" name="password"
-                                   id="password" placeholder="Enter New password here"/>
-                        </Col>
-                    </>
-
-                    <>
-                        <Col sm={{size: 18, offset: 2}}>
-                            <Button onClick={this.handleSubmit}>Save</Button>
-                        </Col>
-                    </>
-                </Form>
-
-                <Col sm="12">
-                    <Card headStyle={{borderBottom: '1px solid #dee2e6', paddingBottom:'.25rem', marginRight:'.5rem', paddingLeft: 0}} title={<><Lock size={18} /><span className="align-middle ml-50">Permissions</span></>}>
-                        <>
-                            {" "}
-                            <Table className="permissions-table" borderless responsive>
-                                <thead>
-                                <tr>
-                                    <th>Module</th>
-                                    <th>Read</th>
-                                    <th>Write</th>
-                                    <th>Create</th>
-                                    <th>Delete</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td>Users</td>
-                                    <td>
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={true}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={false}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={false}
-                                        />
-                                    </td>
-                                    <td>
-                                        {" "}
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={true}
-                                        />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Articles</td>
-                                    <td>
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={false}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={true}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={false}
-                                        />
-                                    </td>
-                                    <td>
-                                        {" "}
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={true}
-                                        />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Staff</td>
-                                    <td>
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={true}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={true}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={false}
-                                        />
-                                    </td>
-                                    <td>
-                                        {" "}
-                                        <Checkbox
-                                            disabled
-                                            color="primary"
-                                            icon={<Check className="vx-icon" size={16} />}
-                                            label=""
-                                            defaultChecked={false}
-                                        />
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </Table>
-                        </>
-                    </Card>
-                </Col>
-            </>
-        );
-    }
+            <Modal
+                width={'90%'}
+                destroyOnClose={true}
+                visible={editModel}
+                onOk={hideEditModal}
+                onCancel={hideEditModal}
+                footer={null}
+                closable={false}>
+                <Card bordered={false}
+                      title={<strong className={'text-large font-weight-bold'}>Edit Account settings</strong>}>
+                    <EditAccountSettings data={data} id={id} handleCancel={hideEditModal}
+                                         handleSuccess={handleSuccess}/>
+                </Card>
+            </Modal>
+            <Modal
+                width={'90%'}
+                destroyOnClose={true}
+                visible={resetPasswordModel}
+                onOk={hideResetPasswordModal}
+                onCancel={hideResetPasswordModal}
+                footer={null}
+                closable={false}>
+                <Card bordered={false}
+                      title={<strong className={'text-large font-weight-bold'}>Reset Password</strong>}>
+                    <ResetPassword  id={id} handleCancel={hideResetPasswordModal}
+                                         handleSuccess={handleResetPassSuccess}/>
+                </Card>
+            </Modal>
+        </>
+    );
 }
 
 export default AccountSettings;
+{/* <Switch loading={this.state.loading} title='Status '
+                                onChange={this.onStatusChange}
+                                checkedChildren={<Icon type="check"/>}
+                                unCheckedChildren={<Icon type="close"/>}/>*/
+}
+{/*<Col sm="12">
+                <Card headStyle={{borderBottom: '1px solid #dee2e6', paddingBottom:'.25rem', marginRight:'.5rem', paddingLeft: 0}} title={<><Lock size={18} /><span className="align-middle ml-50">Permissions</span></>}>
+                    <>
+                        {" "}
+                        <Table className="permissions-table" borderless responsive>
+                            <thead>
+                            <tr>
+                                <th>Module</th>
+                                <th>Read</th>
+                                <th>Write</th>
+                                <th>Create</th>
+                                <th>Delete</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Users</td>
+                                <td>
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={true}
+                                    />
+                                </td>
+                                <td>
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={false}
+                                    />
+                                </td>
+                                <td>
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={false}
+                                    />
+                                </td>
+                                <td>
+                                    {" "}
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={true}
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Articles</td>
+                                <td>
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={false}
+                                    />
+                                </td>
+                                <td>
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={true}
+                                    />
+                                </td>
+                                <td>
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={false}
+                                    />
+                                </td>
+                                <td>
+                                    {" "}
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={true}
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Staff</td>
+                                <td>
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={true}
+                                    />
+                                </td>
+                                <td>
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={true}
+                                    />
+                                </td>
+                                <td>
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={false}
+                                    />
+                                </td>
+                                <td>
+                                    {" "}
+                                    <Checkbox
+                                        disabled
+                                        color="primary"
+                                        icon={<Check className="vx-icon" size={16} />}
+                                        label=""
+                                        defaultChecked={false}
+                                    />
+                                </td>
+                            </tr>
+                            </tbody>
+                        </Table>
+                    </>
+                </Card>
+            </Col>*/
+}

@@ -7,7 +7,7 @@ import catchErrors from "../../../utils/catchErrors";
 import moment from "moment";
 import {useRef} from "react";
 import * as _ from "lodash";
-import {formItemLayout} from "../../Common/UI";
+import {formItemLayout, getBase64} from "../../Common/UI";
 
 const {TextArea} = Input;
 
@@ -119,11 +119,7 @@ function AddDesignationDetails({handleOk, hideHandler, id, form}) {
             <div className="ant-upload-text">Upload</div>
         </div>
     );
-    const getBase64 = (img, callback) => {
-        const reader = new FileReader();
-        reader.addEventListener('load', () => callback(reader.result));
-        reader.readAsDataURL(img);
-    };
+
     const handleChange = file => {
         console.log(file)
         getBase64(file.fileList[file.fileList.length - 1].originFileObj, imageUrl => {

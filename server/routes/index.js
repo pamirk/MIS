@@ -110,8 +110,8 @@ router.post("/employee_create", uploadAvatar, resizeAvatar, employeeController.c
 router.post("/upload_profile_image", uploadAvatar, resizeAvatar, employeeController.upload_profile_image);
 router.post("/document_file", uploadAvatar, resizeAvatar, employeeController.document_file);
 router.get("/documents/:id", employeeController.documents);
-router.post("/set_employee_status", upload.single('image'), employeeController.set_employee_status);
-router.post("/set_employee_password", upload.single('image'), employeeController.set_employee_password);
+router.post("/update_employee_status",  employeeController.update_employee_status);
+router.post("/set_employee_password", employeeController.set_employee_password);
 
 router.post("/create_employee_designation", uploadAvatar, resizeAvatar, employeeController.create_employee_designation);
 router.post("/employee_create_address", employeeController.employee_create_address);

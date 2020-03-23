@@ -1,19 +1,14 @@
-import {Upload, Button, DatePicker, Divider, Form, Input, message, Select, Icon} from 'antd';
+import {Button, DatePicker, Divider, Form, Icon, message, Select, Upload} from 'antd';
 import * as React from 'react';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import axios from "axios";
 import baseUrl from "../../../utils/baseUrl";
 import catchErrors from "../../../utils/catchErrors";
 import moment from "moment";
-import {useRef} from "react";
 import * as _ from "lodash";
-
-const {TextArea} = Input;
-
+import {formItemLayout, getBase64} from "../../Common/UI";
 const FormItem = Form.Item;
 const {Option} = Select;
-
-
 function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
     const [order_Date, setOrder_Date] = useState(false);
     const [appointment_Date, setAppointment_Date] = useState(false);
@@ -23,14 +18,12 @@ function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
     const [designationsItems, setDesignationsItems] = useState(null);
     const [fileList, setFileList] = useState([]);
     const [fieldsValue, setFieldsValue] = useState(null);
-
     const designation = useRef(null);
 
     useEffect(() => {
         setBaseInfo();
         getDepartsList();
     }, []);
-
     const getDepartsList = () => {
         let items = [];
         fetch(baseUrl + '/api/department_list', {
@@ -136,17 +129,11 @@ function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
             <div className="ant-upload-text">Upload</div>
         </div>
     );
-    const getBase64 = (img, callback) => {
-        const reader = new FileReader();
-        reader.addEventListener('load', () => callback(reader.result));
-        reader.readAsDataURL(img);
-    };
     const handleChange = info => {
         getBase64(info.fileList[info.fileList.length - 1].originFileObj, imageUrl => {
                 setImage(imageUrl);
                 setLoading(false);
-            }
-        );
+            });
     };
     const DraggerProps = {
         showUploadList: false,
@@ -159,16 +146,6 @@ function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
         beforeUpload: file => {
             setFileList([...fileList, file]);
             return false;
-        },
-    };
-    const formItemLayout = {
-        labelCol: {
-            xs: {span: 24},
-            sm: {span: 8},
-        },
-        wrapperCol: {
-            xs: {span: 24},
-            sm: {span: 16},
         },
     };
     const {getFieldDecorator} = form;
@@ -222,13 +199,11 @@ function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
                 <div className='flex-justify-content'>
                     <Button size={"large"} className='mr-2' htmlType="submit" loading={loading}
                             disabled={loading}
-                            style={{backgroundColor: '#0a8080', color: 'white'}}>Update</Button>
+                            style={{backgroundColor: '#0a8080', color: 'white', padding: '0px 40px', fontWeight: 600}}>Update</Button>
                     <Button onClick={handleOk} size={"large"}>Cancel</Button>
                 </div>
             </Form>
         </div>
     );
 }
-
-
 export default Form.create()(EditDesignationDetails);

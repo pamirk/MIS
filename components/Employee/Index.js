@@ -8,10 +8,8 @@ import ETraining from "./components/ETraining.js";
 import Transfer from "./components/Transfer.js";
 import AccountSettings from "./components/AccountSettings.js";
 import axios from "axios";
-import Router from "next/router";
 import {Col, Media, Row} from "reactstrap";
 import Head from "next/head";
-import Document from "next/document";
 import Documents from "./components/Documents";
 import EmployeeLeaves from "./components/EmployeeLeaves";
 

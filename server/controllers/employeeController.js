@@ -536,7 +536,8 @@ exports.login = async (req, res) => {
                 database.query(querySting2, [user.employee_id])
                     .then(async (rows) => {
                         const employee_login = rows[0];
-                        if (!employee_login) return res.status(404).send("No user exists with that email");
+                        if (!employee_login) return res.status(404).send("Your Account is not activated yet, contact admin for activation");
+                        if (employee_login && employee_login.employee_is_active === 0) return res.status(404).send("Your Account is disabled, contact admin for activation");
                         const authenticated = (employee_login.employee_password === req.body.password);
                         if (authenticated) {
                             const token = jwt.sign({employee_id: user.employee_id}, jet_secret, {
@@ -635,13 +636,11 @@ exports.reporting_complains = async (req, res) => {
                                          where complain_id = ?;`;
         database.query(update_Complaint_status, [status, complain_id])
             .then(rows => {
-                console.log("inside reporting_complains");
                 const update_querySting = `UPDATE complains_reporting_body
                                            SET is_current = 0
                                            where complain_id = ?;`;
                 database.query(update_querySting, [complain_id])
                     .then(rows => {
-                        console.log("inside reporting_complains update");
                         const querySting =
                                 `insert into complains_reporting_body(complains_reporting_id, complain_id, forwards_to,
                                                                       forwards_by, forwards_date, forwards_message,
@@ -651,7 +650,6 @@ exports.reporting_complains = async (req, res) => {
                                  values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                         database.query(querySting, Values)
                             .then(rows => {
-                                console.log("inside reporting_complains");
                                 console.log("201");
                                 return res.json({status: 201});
                             }).catch(err => {
@@ -670,7 +668,6 @@ exports.reporting_complains = async (req, res) => {
 };
 exports.create_consumer = async (req, res) => {
     try {
-        console.log("inside create_consumer");
         console.log(req.body);
         console.log(req.files);
         const Values = [
@@ -690,7 +687,6 @@ exports.create_consumer = async (req, res) => {
         const querySting = "insert into user_registration_table(account_number, user_cnic, user_name, user_email, user_password, user_address, user_contact, user_cnic_front_image, user_cnic_back_image, user_wasa_bill_image) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         database.query(querySting, Values)
             .then(rows => {
-                console.log("inside create_consumer");
                 console.log("201");
                 return res.json({status: 201});
             }).catch(err => {
@@ -719,7 +715,6 @@ exports.create_employee_designation = async (req, res) => {
 
         database.query(querySting, employeeValues)
             .then(rows => {
-                console.log("inside create_employee_designation");
                 const eemployeesDesignations_id = rows.insertId;
                 res.json({status: 200, eemployeesDesignations_id})
             }).catch(err => {
@@ -743,7 +738,6 @@ exports.complain_register = async (req, res) => {
         const querySting = "insert into consumer_complains_table(complain_id, account_number, complain_body, complain_status) values (?, ?, ?, ?);";
         database.query(querySting.Values)
             .then(rows => {
-                console.log("inside complain_register");
                 console.log("200");
                 res.json({status: 200})
             }).catch(err => {
@@ -776,7 +770,6 @@ exports.reporting_attachment = async (req, res) => {
 
         database.query(querySting, Values)
             .then(rows => {
-                console.log("inside reporting_attachment");
                 console.log("200");
                 res.json({status: 200})
             }).catch(err => {
@@ -804,7 +797,6 @@ exports.postConsumerAttachment = async (req, res) => {
                             values (?, ?, ?, ?);`;
         database.query(querySting, Values)
             .then(rows => {
-                console.log("inside complain_register_Attachment");
                 console.log("200");
                 res.json({status: 200})
             }).catch(err => {
@@ -896,18 +888,12 @@ exports.employee_transfer_details = async (req, res) => {
 exports.get_employee_status = async (req, res) => {
     console.log(req.params.id);
     try {
-        const querySting = `SELECT *
+        const q = `SELECT *
                             from employee_login
                             where employee_id = ?;`;
-        database.query(querySting, [req.params.id])
+        database.query(q, [req.params.id])
             .then(rows => {
-                console.log(" inside training_list");
-                let is_active = 0;
-                if (rows[0]) {
-                    is_active = rows[0].employee_is_active
-                }
-                console.log(is_active);
-                res.json({status: 200, is_active: is_active})
+                res.json({status: 200, rows: rows[0]})
             }).catch(err => {
             console.log(err);
             return res.json({status: 500, err: err});
@@ -989,27 +975,29 @@ exports.create = async (req, res) => {
     }
 };
 
-exports.set_employee_status = async (req, res) => {
+exports.update_employee_status = async (req, res) => {
     try {
-        console.log(req.body.status, req.body.id);
-        let status = req.body.status === 'true' ? 1 : 0;
-        let querySting = "SELECT * from employee_login where employee_id = ?;";
-        database.query(querySting, [req.body.id])
+        /*employee_is_active: 0
+        is_admin: 0
+        id: 54*/
+        let q = `SELECT * from employee_login where employee_id = ?;`;
+        database.query(q, [req.body.id])
             .then(rows => {
-                console.log("i think we did createEmployee");
                 if (rows.length === 0) {
-                    querySting = "insert into employee_login(employee_id, employee_is_active, employee_password) values (?,?,?);";
-                    database.query(querySting, [req.body.id, status, "admin"])
+                    q = `insert into employee_login(employee_id, employee_is_active, is_admin, employee_password) values (?,?,?,?);`;
+                    database.query(q, [req.body.id, req.body.employee_is_active, req.body.is_admin, '123'])
                         .then(rows => {
-                            console.log("inside insert");
                             console.log(200, rows);
                             res.json({status: 200, rows})
                         })
                 } else {
-                    querySting = "update  employee_login set employee_is_active = ? where employee_id = ?;";
-                    database.query(querySting, [status, req.body.id])
+                    q = `update  employee_login set 
+                        employee_is_active = ? ,
+                        is_admin = ?,
+                        last_update_ts = current_timestamp
+                        where employee_id = ?;`;
+                    database.query(q, [req.body.employee_is_active, req.body.is_admin, req.body.id])
                         .then(rows => {
-                            console.log("inside update");
                             console.log(200, rows);
                             res.json({status: 200, rows})
                         })
@@ -1018,32 +1006,25 @@ exports.set_employee_status = async (req, res) => {
             console.log(err);
             return res.json({status: 500, err: err});
         })
-
-
     } catch (error) {
         console.error(error);
-        res.status(403).send("set_employee_status error");
+        res.status(403).send("update_employee_status error");
     }
 };
 
 exports.set_employee_password = async (req, res) => {
     try {
-        console.log(req.body.password, req.body.id);
-        let querySting = "SELECT * from employee_login where employee_id = ?;";
+        let q = `SELECT * from employee_login where employee_id = ?;`;
 
-        database.query(querySting, [req.body.id])
+        database.query(q, [req.body.id])
             .then(rows => {
-                console.log("inside set_employee_password");
                 if (rows.length === 0) {
-                    console.log("ok  500");
                     return res.json({status: 500});
                 } else {
-                    querySting = "update  employee_login set employee_password = ? where employee_id = ?;";
-                    database.query(querySting, [req.body.password, req.body.id])
+                    q = `update employee_login set employee_password = ? where employee_id = ?;`;
+                    database.query(q, [req.body.password, req.body.id])
                         .then(rows => {
-                            console.log("inside update");
-                            console.log(200, rows);
-                            res.json({status: 200, rows})
+                            res.json({status: 200})
                         })
                 }
             }).catch(err => {
@@ -1152,7 +1133,6 @@ exports.createDepartment = async (req, res) => {
         const querySting = "insert into department(department_name, department_description, department_city_name) values (?, ?, ?);";
         database.query(querySting, departmentValues)
             .then(rows => {
-                console.log("inside createDepartment");
                 console.log(rows);
                 res.json(rows)
             }).catch(err => {
@@ -1176,7 +1156,6 @@ exports.create_division = async (req, res) => {
         console.log(divisionValues);
         database.query(querySting, divisionValues)
             .then(rows => {
-                console.log("inside create_division");
                 console.log("create_division: Success:", rows);
                 res.json({status: 200});
             }).catch(err => {
@@ -1196,7 +1175,6 @@ exports.createDesignation = async (req, res) => {
         const querySting = "insert into designations(des_title, des_scale, department_id) values (?, ?, ?);";
         database.query(querySting, departmentValues)
             .then(rows => {
-                console.log("i think we create it");
                 console.log(rows);
                 res.json(rows)
             }).catch(err => {
@@ -1219,7 +1197,6 @@ exports.listSearch = async (req, res) => {
             const querySting = `SELECT * FROM employees where full_name like '%${search_criteria}%';`;
             database.query(querySting)
                 .then(rows => {
-                    console.log("i think we search_criteria it");
                     console.log(rows);
                     res.json(rows)
                 }).catch(err => {
@@ -1270,7 +1247,6 @@ exports.employee_list = async (req, res) => {
         const querySting = "SELECT * FROM employees";
         database.query(querySting)
             .then(rows => {
-                console.log("i think we dit it");
                 console.log(rows);
                 res.json(rows);
             }).catch(err => {
@@ -1288,7 +1264,6 @@ exports.department_list = async (req, res) => {
         const querySting = "SELECT * FROM department;";
         database.query(querySting)
             .then(rows => {
-                console.log("i think we dit it");
                 console.log(rows);
                 res.json(rows)
             }).catch(err => {
@@ -1306,7 +1281,6 @@ exports.division_list = async (req, res) => {
         const querySting = "SELECT * FROM divisions;";
         database.query(querySting)
             .then(rows => {
-                console.log("inside division_list");
                 console.log(rows);
                 res.json(rows)
             }).catch(err => {
@@ -1325,7 +1299,6 @@ exports.sub_division_list = async (req, res) => {
         const querySting = "SELECT * FROM sub_division where div_id = ?;";
         database.query(querySting, [req.params.id])
             .then(rows => {
-                console.log("inside sub_division_list");
                 console.log(rows);
                 res.json(rows)
             }).catch(err => {
@@ -1366,8 +1339,6 @@ exports.designation_list = async (req, res) => {
         const querySting = "SELECT * FROM designations;";
         database.query(querySting)
             .then(rows => {
-                console.log("i think we dit it");
-                console.log(rows);
                 res.json(rows)
             }).catch(err => {
             console.log(err);
@@ -1443,7 +1414,6 @@ exports.employee_designation_update = async (req, res) => {
             moment(emp_des_order_date).format('YYYY-MM-DD hh:mm:ss').toString(),
             moment(emp_des_appointment_date).format('YYYY-MM-DD hh:mm:ss').toString(), emp_des_id])
             .then(rows => {
-                console.log("inside createEmployee");
                 console.warn("200 : employee_designation_update");
                 return res.json({status: 200, row: rows[0]})
             }).catch(err => {
@@ -1519,7 +1489,6 @@ exports.complain_list = async (req, res) => {
                             order by crb.forwards_date DESC, created_us DESC `;
         database.query(querySting)
             .then(rows => {
-                console.log("inside complain_list");
                 console.log(rows);
                 res.json({status: 200, rows});
             }).catch(err => {
@@ -1540,7 +1509,6 @@ exports.get_All_complains = async (req, res) => {
                             ORDER BY created_us DESC  `;
         database.query(querySting)
             .then(rows => {
-                console.log("inside get_All_complains");
                 console.log(rows);
                 res.json({status: 200, rows});
             }).catch(err => {
@@ -1580,7 +1548,6 @@ exports.employee_complain_list = async (req, res) => {
                             order by crb.forwards_date DESC, created_us DESC `;
         database.query(querySting, [req.params.id])
             .then(rows => {
-                console.log("inside complain_list");
                 console.log(rows);
                 return res.json({status: 200, rows});
             }).catch(err => {
@@ -1619,7 +1586,6 @@ exports.consumer_complain_list = async (req, res) => {
                             order by created_us DESC `;
         database.query(querySting, [req.params.id])
             .then(rows => {
-                console.log("inside complain_list");
                 console.log(rows);
                 res.json({status: 200, rows});
             }).catch(err => {
@@ -1633,7 +1599,6 @@ exports.consumer_complain_list = async (req, res) => {
 };
 exports.single_complain = async (req, res) => {
     try {
-        console.log("inside single_complain", req.params.id);
         const querySting =
                 `select *
                  from consumer_complains_table as comp
@@ -1647,7 +1612,6 @@ exports.single_complain = async (req, res) => {
                  order by forwards_date, is_current DESC`;
         database.query(querySting, [req.params.id])
             .then(rows => {
-                console.log("inside complain_list");
                 console.log(rows);
                 res.json({status: 200, rows});
             }).catch(err => {
@@ -1662,7 +1626,6 @@ exports.single_complain = async (req, res) => {
 };
 exports.getcomplain = async (req, res) => {
     try {
-        console.log("inside single_complain", req.params.id);
         const querySting =
                 `select *
                  from consumer_complains_table as comp
@@ -1672,7 +1635,6 @@ exports.getcomplain = async (req, res) => {
                  where comp.complain_id = ?`;
         database.query(querySting, [req.params.id])
             .then(rows => {
-                console.log("inside complain_list");
                 console.log(rows[0]);
                 res.json({status: 200, row: rows[0]});
             })
@@ -1689,7 +1651,6 @@ exports.getcomplain = async (req, res) => {
 
 exports.sc = async (req, res) => {
     try {
-        console.log("inside sc", req.params.id);
 
         const query = `select *
                        from vw_responses r
@@ -1698,7 +1659,6 @@ exports.sc = async (req, res) => {
                        order by forwards_date, is_current DESC`;
         database.query(query, [req.params.id])
             .then(rows => {
-                console.log("inside complain_list");
                 console.log(rows);
                 res.json({status: 200, rows});
             })
@@ -1730,7 +1690,6 @@ exports.promote_emoployee = async (req, res) => {
 
         database.query(update_querySting, [req.body.employee_id])
             .then(rows => {
-                console.log("inside create_employee_designation");
                 database.query(querySting, employeeValues)
                     .then(rows => {
                         const eemployeesDesignations_id = rows.insertId;
@@ -1749,7 +1708,6 @@ exports.promote_emoployee = async (req, res) => {
 };
 exports.add_emoployee_training = async (req, res) => {
     try {
-        console.log("inside promote_emoployee");
         console.log(req.body);
         const employeeValues = [
             req.body.employee_id,
@@ -1765,7 +1723,6 @@ exports.add_emoployee_training = async (req, res) => {
 
         database.query(querySting, employeeValues)
             .then(rows => {
-                console.log("inside create_employee_designation");
                 const eemployeesDesignations_id = rows.insertId;
                 return res.json({status: 200, eemployeesDesignations_id})
             })
@@ -1788,7 +1745,6 @@ function convert(str) {
 
 exports.transfer_emoployee = async (req, res) => {
     try {
-        console.log("inside transfer_emoployee");
         //console.log(req.body);
         const values = [
             req.body.employee_id,
@@ -1809,7 +1765,6 @@ exports.transfer_emoployee = async (req, res) => {
             .then(rows => {
                 database.query(querySting, values)
                     .then(rows => {
-                        console.log("inside transfer_emoployee");
                         res.json({status: 200})
                     })
             })

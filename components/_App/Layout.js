@@ -34,7 +34,12 @@ function AppLayout({children, user}) {
             </Menu.Item>
             <Menu.Item key="11">
                 <Link href="/leave2">
-                    <a><Icon component={Plane}/><span>Time Off2</span></a>
+                    <a><Icon component={Plane}/><span>Time Off</span></a>
+                </Link>
+            </Menu.Item>
+            <Menu.Item key="12">
+                <Link href="/employee/details">
+                    <a><Icon type="personaldetails"/><span>Personal details</span></a>
                 </Link>
             </Menu.Item>
         </Menu>

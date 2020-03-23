@@ -20,6 +20,7 @@ const authRoutes = [
     '/complain_dashboard',
     '/employee',
     '/complaints',
+    '/details',
 ];
 const isProtectedRoute = (path) => authRoutes.includes(path);
 const isNotPermitted = (is_admin, path) => !is_admin && adminRoutes.includes(path);
