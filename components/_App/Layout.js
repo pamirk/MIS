@@ -23,23 +23,23 @@ function AppLayout({children, user}) {
         <Menu theme="dark" mode="inline" defaultSelectedKeys={['100']}>
 
             <Menu.Item key="8">
-                <Link href="/complain_register">
-                    <a> <Icon type="user"/> <span>Add Complaint</span></a>
-                </Link>
-            </Menu.Item>
+                <Link href="/register_complaint">
+                    <a> <span>Add Complaint</span></a>
+                    </Link>
+                </Menu.Item>
             <Menu.Item key="9">
                 <Link href="/complaints">
-                    <a> <Icon type="user"/> <span>View Complaints</span></a>
+                    <a> <span>View Complaints</span></a>
                 </Link>
             </Menu.Item>
             <Menu.Item key="11">
                 <Link href="/leave2">
-                    <a><Icon component={Plane}/><span>Time Off</span></a>
+                    <a><span>Time Off</span></a>
                 </Link>
             </Menu.Item>
             <Menu.Item key="12">
                 <Link href="/employee/details">
-                    <a><Icon type="personaldetails"/><span>Personal details</span></a>
+                    <a><span>Personal details</span></a>
                 </Link>
             </Menu.Item>
         </Menu>
@@ -53,12 +53,12 @@ function AppLayout({children, user}) {
             </Menu.Item>*/}
             <Menu.Item key="2">
                 <Link href="/add_employee">
-                    <a> <Icon type='user-add'/><span>Add Employee</span></a>
+                    <a> <span>Add Employee</span></a>
                 </Link>
             </Menu.Item>
             <Menu.Item key="3">
                 <Link href="/employees">
-                    <a> <Icon type='user'/><span>All Employees</span></a>
+                    <a> <span>All Employees</span></a>
                 </Link>
             </Menu.Item>
             {/* <Menu.Item key="4">
@@ -83,7 +83,7 @@ function AppLayout({children, user}) {
             </Menu.Item>*/}
             <Menu.Item key="8">
                 <Link href="/complaints">
-                    <a><Icon component={Complaint}/><span>Complaints</span></a>
+                    <a><span>Complaints</span></a>
                 </Link>
             </Menu.Item>
             {/*<Menu.Item key="9">
@@ -91,17 +91,22 @@ function AppLayout({children, user}) {
                 </Menu.Item>*/}
             <Menu.Item key="10">
                 <Link href="/leave">
-                    <a><Icon component={Plane}/><span>Time Off</span></a>
+                    <a><span>Time Off</span></a>
                 </Link>
             </Menu.Item>
             <Menu.Item key="11">
                 <Link href="/tubewells">
-                    <a><Icon type={'plus'}/><span>Tubewells</span></a>
+                    <a><span>Tubewells</span></a>
                 </Link>
             </Menu.Item>
             <Menu.Item key="12">
                 <Link href="/trainings">
-                    <a><Icon component={Training}/><span>Trainings</span></a>
+                    <a><span>Trainings</span></a>
+                </Link>
+            </Menu.Item>
+            <Menu.Item key="13">
+                <Link href="/roles">
+                    <a><span>Roles</span></a>
                 </Link>
             </Menu.Item>
         </Menu>;
@@ -110,7 +115,6 @@ function AppLayout({children, user}) {
         <>
             <Head>
                 <HeadContent/>
-                {/* Stylesheets */}
                 <link rel="stylesheet" type="text/css" href="/static/bootstrap.css"/>
                 <link rel="stylesheet" type="text/css" href="/static/antd.min.css"/>
                 <link rel="stylesheet" type="text/css" href="/static/styles.css"/>

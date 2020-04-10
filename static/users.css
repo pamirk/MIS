@@ -15,7 +15,7 @@
   padding: 0.5rem;
 }
 .users-page-view-table .user-info .user-info-title {
-  min-width: 140px;
+  min-width: 100px;
 }
 @media (max-width: 576px) {
   .ag-grid-table .ag-paging-panel {
@@ -23,5 +23,8 @@
   }
   .ag-grid-table .sort-dropdown {
     margin-bottom: 1rem;
+  }
+  .users-page-view-table .user-info .user-info-title {
+    min-width: 70px;
   }
 }

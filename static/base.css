@@ -1,3 +1,10 @@
+.select-employee input {
+    padding: 0;
+}
+.bg-0a8080 {
+    background-color: #0a8080;
+}
+
 .baseView {
     display: flex;
     padding-top: 12px;
@@ -526,8 +533,8 @@
 
 .color-425A70 {
     background-color: #425A70;
-
 }
+
 
 .zp-icon-image {
     display: inline-block;
@@ -872,6 +879,7 @@ span.btn-pk {
 }
 .btn-primary-green input[type=file] {
     font-size: 100px;
+    border: 1.5px solid #0a8080;
     position: absolute;
     left: 0;
     top: 0;

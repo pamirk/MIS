@@ -1,13 +1,13 @@
 const compose = require('next-compose-plugins');
 const withCSS = require('@zeit/next-css');
 module.exports = compose([
-    withCSS({
+    [withCSS({
         cssModules: true,
         cssLoaderOptions: {
             importLoaders: 1,
             localIdentName: "[local]___[hash:base64:5]",
         }
-    }),
+    })],
     {
         webpack: (config) => {
             config.module.rules.push({

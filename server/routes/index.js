@@ -63,6 +63,17 @@ const catchErrors = fn => {
         return fn(req, res, next).catch(next);
     };
 };
+router.get("/roles/:id", employeeController.roles);
+router.get("/employees_in_role/:id", employeeController.employees_in_role);
+router.get("/role_details/:id", employeeController.role_details);
+router.get("/roles_count", employeeController.roles_count);
+router.get("/permissions", employeeController.permissions);
+router.post("/create_role", employeeController.create_role);
+router.post("/add_employee_role", employeeController.add_employee_role);
+router.post("/update_role", employeeController.update_role);
+router.post("/role_delete", employeeController.role_delete);
+router.post("/employee_delete_from_role", employeeController.employee_delete_from_role);
+
 
 router.post("/create_training", employeeController.create_training);
 router.post("/add_employee_trainings", employeeController.add_employee_trainings);
@@ -81,6 +92,7 @@ router.get("/leaves_count", employeeController.leaves_count);
 router.get("/leaves_yearly_count", employeeController.leaves_yearly_count);
 router.get("/all_leaves", employeeController.all_leaves);
 router.post("/login", employeeController.login);
+router.post("/user_login", employeeController.user_login);
 router.get("/account", employeeController.account);
 
 
@@ -89,7 +101,7 @@ router.post("/update_tubewell", employeeController.update_tubewell);
 
 
 router.get("/", employeeController.index);
-router.get("/employee_list", employeeController.employee_list);
+router.get("/employee_list/:id", employeeController.employee_list);
 router.get("/employee/:id", employeeController.showEmployee);
 router.get("/show_one_employee/:id", employeeController.show_one_employee);
 router.get("/show_one_employee_address/:id", employeeController.show_one_employee_address);

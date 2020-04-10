@@ -14,8 +14,8 @@ create table cities
     country_id     bigint                              null,
     last_update_ts timestamp default CURRENT_TIMESTAMP not null,
     constraint cities_ibfk_1
-        foreign key (country_id) references countries (country_id)
-            on delete cascade
+            foreign key (country_id) references countries (country_id)
+                on delete cascade
 );
 
 create index country_id

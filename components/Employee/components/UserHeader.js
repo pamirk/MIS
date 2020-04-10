@@ -128,3 +128,36 @@ function UserHeader({name, formNumber, email, designation, status, contact}) {
 }
 
 export default UserHeader;
+/*
+* create table leaves
+(
+    lv_id          bigint auto_increment
+        primary key,
+    employee_id    bigint                              not null,
+    start_date     datetime                            not null,
+    end_date       datetime                            not null,
+    status         varchar(255)                        not null,
+    description    text                                null,
+    reply_note     text                                null,
+    entertain_by   bigint                              null,
+    entertain_on   datetime                            null,
+    last_update_ts timestamp default CURRENT_TIMESTAMP not null,
+    lt_id          bigint    default 1                 not null,
+    constraint leaves___fk3
+        foreign key (lt_id) references leave_types (lt_id)
+            on update cascade on delete cascade,
+    constraint leaves_ibfk_1
+        foreign key (employee_id) references employees (employee_id)
+            on delete cascade,
+    constraint leaves_ibfk_2
+        foreign key (entertain_by) references employees (employee_id)
+            on delete cascade
+);
+
+create index employee_id
+    on leaves (employee_id);
+
+create index entertain_by
+    on leaves (entertain_by);
+
+*/

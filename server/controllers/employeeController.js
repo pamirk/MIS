@@ -7,6 +7,222 @@ const jet_secret = "d,f.1`!@f#$&*()@dnkfndf";
 
 const database = new Database();
 
+exports.add_employee_role = async (req, res) => {
+    try {
+        const {r_id, authorizedBy, e_ids} = req.body;
+        console.log("r_id, authorizedBy, e_ids", r_id, authorizedBy, e_ids);
+        let q = `insert into employee_roles(r_id, authorizedBy, e_id) values `;
+        let str = '';
+        let separator = "";
+        e_ids.map(e_id => {
+            str += ` ${separator} (${r_id},${authorizedBy},${e_id})`;
+            separator = ','
+        });
+        q += str;
+        database.query(q)
+            .then(rows => {
+                return res.json({status: 200})
+            })
+            .catch(error => {
+                console.log("database error in permissions routes:  ", error);
+                return res.status(401).json({message: 'error in getting permissions'});
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("Please login again");
+    }
+};
+exports.create_role = async (req, res) => {
+    try {
+        const {permissions, name, description} = req.body;
+        const q = `insert into roles(name, description) values ( ?, ?)`;
+        let q2 = `insert into roles_permissions(r_id, p_id) values`;
+        let str = '';
+        let separator = "";
+        database.query(q, [name, description])
+            .then(rows => {
+                permissions.map(i => {
+                    str += ` ${separator} (${rows.insertId},${i})`;
+                    separator = ','
+                });
+                q2 += str;
+                database.query(q2)
+                    .then(rows2 => res.json({status: 200}));
+            })
+            .catch(error => {
+                console.log("database error in permissions routes:  ", error);
+                return res.status(401).json({message: 'error in getting permissions'});
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("Please login again");
+    }
+};
+exports.update_role = async (req, res) => {
+    try {
+        const {permissions, name, description, role_id} = req.body;
+        //const qeweemployee_listw = `insert into roles(name, description) values ( ?, ?)`;
+        const q = `update roles set name = ?, description = ? where id = ? `;
+        const q1 = `delete from roles_permissions  where r_id = ? `;
+        let q2 = `insert into roles_permissions(r_id, p_id) values`;
+        let str = '';
+        let separator = "";
+        database.query(q, [name, description, role_id])
+            .then(rows => {
+                database.query(q1, role_id)
+                    .then(rows1 => {
+                        permissions.map(i => {
+                            str += ` ${separator} (${role_id},${i})`;
+                            separator = ','
+                        });
+                        q2 += str;
+                        database.query(q2)
+                            .then(rows2 => res.json({status: 200}));
+                    });
+            })
+            .catch(error => {
+                console.log("database error in permissions routes:  ", error);
+                return res.status(401).json({message: 'error in getting permissions'});
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("Please login again");
+    }
+};
+exports.role_delete = async (req, res) => {
+    try {
+        const q = `delete from roles where id = ?`;
+        database.query(q, [req.body.id])
+            .then(rows => res.json({status: 200}))
+            .catch(error => {
+                console.log("database error in role_delete routes:  ", error);
+                return res.status(401).json({message: 'error in role_delete'});
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("Please login again");
+    }
+};
+exports.employee_delete_from_role = async (req, res) => {
+    try {
+        const q = `delete from employee_roles where r_id = ? and e_id = ?`;
+        database.query(q, [req.body.r_id, req.body.e_id])
+            .then(rows => res.json({status: 200}))
+            .catch(error => {
+                console.log("database error in employee_delete_from_role routes:  ", error);
+                return res.status(401).json({message: 'error in employee_delete_from_role'});
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("Please login again");
+    }
+};
+exports.permissions = async (req, res) => {
+    try {
+        const q = `select * 
+                   from permissions`;
+        database.query(q)
+            .then(rows => {
+                console.log("rows", rows);
+                return res.json({status: 200, rows});
+            })
+            .catch(error => {
+                console.log("database error in permissions routes:  ", error);
+                return res.status(401).json({message: 'error in getting permissions'});
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("Please login again");
+    }
+};
+exports.roles_count = async (req, res) => {
+    try {
+        const q = `select r.*, count(er.id) count
+                    from roles r
+                             left join employee_roles er on r.id = er.r_id
+                    group by r.id`;
+        database.query(q)
+            .then(rows => {
+                return res.json({status: 200, rows});
+            })
+            .catch(error => {
+                console.log("database error in roles_count routes:  ", error);
+                return res.status(401).json({message: 'error in getting roles_count'});
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("Please login again");
+    }
+};
+exports.roles = async (req, res) => {
+    try {
+        const q = `select p.id p_id, p.name p_name, p.type p_type,
+                       rp.id rp,
+                       r.id r_id, r.name r_name, r.description r_description,
+                       er.id er_id, er.ts er_ts
+                   from employees
+                        left join employee_roles er on employees.employee_id = er.e_id
+                        left join roles r on er.r_id = r.id
+                        left join roles_permissions rp on r.id = rp.r_id
+                        left join permissions p on rp.p_id = p.id
+                        where employee_id = ?;`;
+        database.query(q, [req.params.id])
+            .then(rows => {
+                return res.json({status: 200, rows});
+            })
+            .catch(error => {
+                console.log("database error in roles routes:  ", error);
+                return res.status(401).json({message: 'error in getting roles'});
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("Please login again");
+    }
+};
+exports.employees_in_role = async (req, res) => {
+    try {
+        const q = `select e.employee_id, e.full_name, form_number, e.employee_photo
+                    from employee_roles
+                    left join employees e on employee_roles.e_id = e.employee_id
+                    where r_id = ?`;
+        database.query(q, [req.params.id])
+            .then(rows => {
+                return res.json({status: 200, rows});
+            })
+            .catch(error => {
+                console.log("database error in roles routes:  ", error);
+                return res.status(401).json({message: 'error in getting roles'});
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("Please login again");
+    }
+};
+exports.role_details = async (req, res) => {
+    try {
+        const q = `select * from roles where id = ?`;
+        const q2 = `select p.id p_id, p.name p_name, p.type p_type,
+                    rp.id rp
+                    from roles r
+                     left join roles_permissions rp on r.id = rp.r_id
+                     left join permissions p on rp.p_id = p.id
+                    where r.id = ?`;
+        database.query(q, [req.params.id])
+            .then(rows => {
+                database.query(q2, [req.params.id])
+                    .then(rows2 => {
+                        return res.json({status: 200, role: rows[0], details: rows2});
+                    });
+            })
+            .catch(error => {
+                console.log("database error in roles routes:  ", error);
+                return res.status(401).json({message: 'error in getting roles'});
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("Please login again");
+    }
+};
 exports.tubewells = async (req, res) => {
     try {
         const queryString = `SELECT t.tubewell_id,
@@ -540,7 +756,7 @@ exports.login = async (req, res) => {
                         if (employee_login && employee_login.employee_is_active === 0) return res.status(404).send("Your Account is disabled, contact admin for activation");
                         const authenticated = (employee_login.employee_password === req.body.password);
                         if (authenticated) {
-                            const token = jwt.sign({employee_id: user.employee_id}, jet_secret, {
+                            const token = jwt.sign({employee_id: user.employee_id, account_number: null}, jet_secret, {
                                 expiresIn: "7d"
                             });
                             console.log("authenticated", token);
@@ -566,6 +782,38 @@ exports.login = async (req, res) => {
         res.status(500).send("Error logging in user");
     }
 };
+exports.user_login = async (req, res) => {
+    const {account_number, password} = req.body;
+    const q = `SELECT *
+                from user_registration_table
+                where account_number = ?;`;
+    try {
+        database.query(q, [account_number])
+            .then(async (rows) => {
+                if (!rows[0]) return res.status(404).send("No user exists with that account_number");
+                const user = rows[0];
+                const authenticated = (user.user_password === password);
+                if (authenticated) {
+                    const token = jwt.sign({employee_id: null, account_number: user.account_number}, jet_secret, {
+                        expiresIn: "7d"
+                    });
+                    console.log("authenticated", token);
+                    res.status(200).json(token);
+                } else {
+                    console.log("Passwords do not match");
+                    res.status(401).send("Passwords do not match");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                res.status(500).send("Error logging in user");
+            });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error logging in user");
+    }
+};
 
 exports.account = async (req, res) => {
     if (!("authorization" in req.headers)) {
@@ -573,34 +821,47 @@ exports.account = async (req, res) => {
     }
 
     try {
-        const {employee_id} = jwt.verify(req.headers.authorization, jet_secret);
-        const querySting = `SELECT *
+        const {employee_id, account_number} = jwt.verify(req.headers.authorization, jet_secret);
+        if (employee_id) {
+            const q = `SELECT *
                             from employee_login
                             where employee_id = ?;`;
-        database.query(querySting, [employee_id])
-            .then(async (rows) => {
-                const employee_login = rows[0];
-                if (!employee_login) {
-                    return res.status(404).send("No user exists with that email");
-                } else {
-                    const querySting2 = `SELECT *
+            database.query(q, [employee_id])
+                .then(async (rows) => {
+                    const employee_login = rows[0];
+                    if (!employee_login) {
+                        return res.status(404).send("No user exists with that email");
+                    } else {
+                        const q2 = `SELECT *
                                          from employees
                                          where employee_id = ?;`;
-                    database.query(querySting2, [employee_login.employee_id])
-                        .then(rows => {
-                            console.log()
-                            res.status(200).json({employee: rows[0], employeeLogin: employee_login});
-                        })
-                        .catch(error => {
-                            console.error(error);
-                            res.status(500).send("Error account");
-                        });
-                }
-            })
-            .catch(error => {
-                console.error(error);
-                res.status(404).send("User not found");
-            });
+                        database.query(q2, [employee_login.employee_id])
+                            .then(rows => {
+                                res.status(200).json({employee: rows[0], employeeLogin: employee_login});
+                            })
+                            .catch(error => {
+                                console.error(error);
+                                res.status(500).send("Error account");
+                            });
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    res.status(404).send("User not found");
+                });
+        } else if (account_number) {
+            const q = `SELECT *
+                            from user_registration_table
+                            where account_number = ?;`;
+            database.query(q, [account_number])
+                .then(rows => {
+                    res.status(200).json({user: rows[0], employee: null, employeeLogin: null});
+                })
+                .catch(error => {
+                    console.error(error);
+                    return res.status(404).send("No user exists with that Account Number");
+                });
+        }
     } catch (error) {
         res.status(403).send("Invalid token");
     }
@@ -1244,15 +1505,15 @@ exports.showEmployee = async (req, res) => {
 exports.employee_list = async (req, res) => {
     try {
         console.log("responding to employee_list route");
-        const querySting = "SELECT * FROM employees";
-        database.query(querySting)
-            .then(rows => {
-                console.log(rows);
-                res.json(rows);
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
+        const q = `SELECT * FROM employees 
+                    where employee_id not in (select e_id as employee_id from employee_roles where r_id = 10) 
+                    and full_name like '%${req.params.id}%'`;
+        database.query(q)
+            .then(rows => res.json(rows))
+            .catch(err => {
+                console.log(err);
+                return res.json({status: 500, err: err});
+            })
     } catch (error) {
         console.error(error);
         res.status(403).send("employee_list error");

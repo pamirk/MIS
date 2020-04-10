@@ -10,6 +10,8 @@ import moment from "moment";
 import {cardTitleIcon} from "../../Common/UI";
 import Link from "next/link";
 import AddDesignationDetails from "./AddDesignationDetails";
+import {useEmployeeState} from "../useEmployeeState";
+import {VIEW__EMPLOYMENT_DETAILS, EDIT__EMPLOYMENT_DETAILS} from "../../../utils/role_constants";
 
 export default function Job({id, employee, address, designations}) {
     const [loading, setLoading] = useState(false);
@@ -19,11 +21,10 @@ export default function Job({id, employee, address, designations}) {
     const [visible_showEditAddressModal, setVisible_showEditAddressModal] = useState(false);
     const [visible_showEditDesignationModal, setVisible_showEditDesignationModal] = useState(false);
     const [addDesignationModalVisible, setAddDesignationModalVisible] = useState(false);
-
-
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
-
+    const [{ count, roles }, dispatch] = useEmployeeState();
+    const [rolesInts, setRolesInts] = useState([]);
     const handlePreview = async file => {
         setPreviewImage(file);
         setPreviewVisible(true)
@@ -35,9 +36,12 @@ export default function Job({id, employee, address, designations}) {
             cd.emp_des_order_date = moment(cd.emp_des_order_date).format('YYYY-MM-DD');
             cd.emp_des_appointment_date = moment(cd.emp_des_appointment_date).format('YYYY-MM-DD');
         }
-        setDes_data(cd)
-
+        setDes_data(cd);
         setWorkAddress(address.filter(i => i.type === 2));
+        let arr = [];
+        roles.map(i => arr.push(i.p_id));
+        setRolesInts(arr)
+
     }, []);
     const showEditAddressModal = () => setVisible_showEditAddressModal(true);
     const handleOk = e => {
@@ -71,6 +75,7 @@ export default function Job({id, employee, address, designations}) {
                 setLoading(false);
             })
     };
+
     return (
         <>
             <Head>
@@ -79,9 +84,9 @@ export default function Job({id, employee, address, designations}) {
             {(!loading) &&
             <><Row>
                 <Col sm="12" md="6">
-                    {(des_data) ?
+                    {(des_data && rolesInts.includes(VIEW__EMPLOYMENT_DETAILS)) ?
                         <Card bordered={false}
-                              title={cardTitleIcon('Employment Details', "edit", showEditDesignationModal)}>
+                              title={cardTitleIcon('Employment Details', "edit", rolesInts.includes(VIEW__EMPLOYMENT_DETAILS) && rolesInts.includes(EDIT__EMPLOYMENT_DETAILS) && showEditDesignationModal)}>
                             <div className="users-page-view-table">
                                 <div className="d-flex user-info">
                                     <div className="user-info-title font-weight-bold">Start Date</div>
@@ -118,7 +123,7 @@ export default function Job({id, employee, address, designations}) {
                             </div>
                         </Card>
                         : <Card bordered={false}
-                                title={cardTitleIcon('Add Employment Details', "plus", showAddDesignationModal)}>
+                                title={cardTitleIcon('Add Employment Details', "plus",rolesInts.includes(VIEW__EMPLOYMENT_DETAILS) && rolesInts.includes(EDIT__EMPLOYMENT_DETAILS) &&  showAddDesignationModal)}>
                         </Card>
                     }
 

@@ -5,6 +5,10 @@ export function handleLogin(token) {
     cookie.set("token", token);
     Router.push("/");
 }
+export function handleUserLogin(token) {
+    cookie.set("token", token);
+    Router.push("/user");
+}
 
 export function redirectUser(ctx, location) {
     if (ctx.req) {
