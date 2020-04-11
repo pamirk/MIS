@@ -102,6 +102,7 @@ router.post("/update_tubewell", employeeController.update_tubewell);
 
 
 router.get("/", employeeController.index);
+router.get("/employee_list", employeeController.employee_list_all);
 router.get("/employee_list/:id", employeeController.employee_list);
 router.get("/employee/:id", employeeController.showEmployee);
 router.get("/show_one_employee/:id", employeeController.show_one_employee);

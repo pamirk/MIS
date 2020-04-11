@@ -1577,6 +1577,22 @@ exports.showEmployee = async (req, res) => {
         res.status(403).send("showEmployee error");
     }
 };
+exports.employee_list_all = async (req, res) => {
+    try {
+        console.log("responding to employee_list_all route");
+        const querySting = "SELECT * FROM employees";
+        database.query(querySting)
+            .then(rows => {
+                res.json(rows);
+            }).catch(err => {
+            console.log(err);
+            return res.json({status: 500, err: err});
+        })
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("employee_list error");
+    }
+};
 exports.employee_list = async (req, res) => {
     try {
         console.log("responding to employee_list route");
