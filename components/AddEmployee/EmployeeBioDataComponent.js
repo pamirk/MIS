@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Avatar, Card, Descriptions, Divider, Icon, Typography} from "antd";
 import {Col, Media, Row} from "reactstrap";
 
-import baseUrl from "../../utils/baseUrl";
+import baseUrl, {awsb} from "../../utils/baseUrl";
 import Head from "next/head";
 
 const {Text} = Typography;
@@ -26,7 +26,7 @@ export default function EmployeeBioDataComponent({data}) {
                                             <div className='profile-pic'>
                                             <span className='profile-photo-img'>
                                                 <Avatar className="gx-size-112 rounded mr-2"
-                                                        src={`${baseUrl}/${data.employee_photo}`}/>
+                                                        src={`${awsb}/${data.employee_photo}`}/>
                                             </span>
                                             </div>
                                         </div>

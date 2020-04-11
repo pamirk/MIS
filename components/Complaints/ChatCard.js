@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
-import {Avatar, Card, Divider, Dropdown, Icon, Modal} from "antd";
+import {Avatar, Card, Divider, Modal} from "antd";
 import moment from "moment";
-import baseUrl from "../../utils/baseUrl";
+import {awsb} from "../../utils/baseUrl";
 
 export default function ChatCard({
                                      attachments, complaincard, user_name, created_at, complain_body, forwards_to_name, forwards_by_name,
@@ -58,8 +58,8 @@ export default function ChatCard({
                     <Divider/>
 
                     {imagesList.map(v => (
-                        <span onClick={() => handlePreview(baseUrl + `/${v}`)}>
-                                 <Avatar src={baseUrl + `/${v}`}
+                        <span onClick={() => handlePreview(awsb + `/${v}`)}>
+                                 <Avatar src={awsb + `/${v}`}
                                          className='ml-2' shape="square"
                                          size={140} icon="user"/>
                         </span>

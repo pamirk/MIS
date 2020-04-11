@@ -3,6 +3,7 @@ import * as React from 'react';
 import {useEffect, useRef, useState} from 'react';
 import axios from "axios";
 import baseUrl from "../../../utils/baseUrl";
+import {awsb} from "../../../utils/baseUrl";
 import catchErrors from "../../../utils/catchErrors";
 import moment from "moment";
 import * as _ from "lodash";
@@ -13,7 +14,7 @@ function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
     const [order_Date, setOrder_Date] = useState(false);
     const [appointment_Date, setAppointment_Date] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [image, setImage] = useState(baseUrl + '/' + data.emp_des_order_letter_photo);
+    const [image, setImage] = useState(awsb + '/' + data.emp_des_order_letter_photo);
     const [departs, setDeparts] = useState(null);
     const [designationsItems, setDesignationsItems] = useState(null);
     const [fileList, setFileList] = useState([]);

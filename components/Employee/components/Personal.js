@@ -26,7 +26,7 @@ export default function Personal({id, p_employee, p_address}) {
         setAddress(p_address.filter(i => i.type === 1));
     }, []);
     const handleOk = e => {
-        setVisible_showEditBasicModal(false)
+        setVisible_showEditBasicModal(false);
         setVisible_showEditAddressModal(false)
     };
     const handleCancel = e => {

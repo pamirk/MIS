@@ -3,6 +3,7 @@ import {useEffect, useState} from 'react';
 import {Button, Card, Icon, Modal} from 'antd';
 import Address from "./Address";
 import baseUrl from "../../../utils/baseUrl";
+import {awsb} from "../../../utils/baseUrl";
 import {Col, Row} from "reactstrap";
 import Head from "next/head";
 import EditDesignationDetails from "./EditDesignationDetails";
@@ -114,7 +115,7 @@ export default function Job({id, employee, address, designations}) {
                                     <div className="text-truncate">
                                         <span>
                                             <Link>
-                                              <a onClick={() => handlePreview(baseUrl + `/${des_data.emp_des_order_letter_photo}`)}>
+                                              <a onClick={() => handlePreview(awsb + `/${des_data.emp_des_order_letter_photo}`)}>
                                                   <Icon type="eye" theme="twoTone" title='View Order Letter photo'/></a>
                                             </Link>
                                         </span>

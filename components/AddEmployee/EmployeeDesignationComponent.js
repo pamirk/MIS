@@ -1,9 +1,8 @@
-import React, {Component} from "react";
-import {Avatar, Badge, Card, Descriptions, Divider, Typography} from "antd";
+import React from "react";
+import {Avatar, Badge, Card} from "antd";
 import {Col, Media, Row} from "reactstrap";
-import baseUrl from "../../utils/baseUrl";
+import {awsb} from "../../utils/baseUrl";
 import Head from "next/head";
-const {Text} = Typography;
 
 export default function EmployeeDesignationComponent({data}) {
     if (!data) return "No"
@@ -24,7 +23,7 @@ export default function EmployeeDesignationComponent({data}) {
                                             <div className='profile-pic'>
                                             <span className='profile-photo-img'>
                                                 <Avatar className="gx-size-112 rounded mr-2"
-                                                        src={`${baseUrl}/${data.emp_des_order_letter_photo}`}/>
+                                                        src={`${awsb}/${data.emp_des_order_letter_photo}`}/>
                                             </span>
                                             </div>
                                         </div>

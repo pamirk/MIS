@@ -2,7 +2,7 @@ import * as React from 'react';
 import {useEffect, useRef, useState} from 'react';
 import {Badge, Button, Card, Col, Icon, Input, Modal, Table} from "antd";
 import TransfersComponent from "./TransfersComponent";
-import baseUrl from "../../../utils/baseUrl";
+import baseUrl, {awsb} from "../../../utils/baseUrl";
 import Link from "next/link";
 import moment from "moment";
 
@@ -189,7 +189,7 @@ export default function Transfer({id, employee}) {
             render: (text, record) => (
                 <span>
                     <Link>
-                      <a onClick={() => handlePreview(baseUrl + `/${record.photo}`)}>
+                      <a onClick={() => handlePreview(awsb + `/${record.photo}`)}>
                           <Icon type="eye" theme="twoTone" title='View Order Letter photo' /></a>
                     </Link>
                 </span>

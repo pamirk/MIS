@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Avatar, Button, Card, Divider, Form, Icon, List, message, Modal, Popconfirm, Tooltip} from "antd";
 import {useRouter} from 'next/router'
-import baseUrl from "../../utils/baseUrl";
+import baseUrl, {awsb} from "../../utils/baseUrl";
 import axios from "axios";
 import Link from "next/link";
 import {LEAVE_STATUS} from "../../server/utils/status";
@@ -138,7 +138,7 @@ function Index({user}) {
                             ]}>
 
                                 <List.Item.Meta title={<Link href={`/employee/${item.employee_id}`}><a target="_blank">{item.full_name}</a></Link>}
-                                                avatar={<Avatar src={baseUrl + '/' + item.employee_photo}/>}
+                                                avatar={<Avatar src={awsb + '/' + item.employee_photo}/>}
                                                 description={'Form Number: ' + item.form_number}
                                 />
                             </List.Item>)}

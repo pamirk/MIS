@@ -3,7 +3,7 @@ import {Tabs, Menu, Dropdown, Icon, Button, Layout, message, Divider, Modal, Upl
 import Avatar from './Avatar'
 import Head from "next/head";
 import {useRouter} from "next/router";
-import baseUrl from "../../utils/baseUrl";
+import baseUrl, {awsb} from "../../utils/baseUrl";
 import axios from "axios";
 import moment from "moment";
 import ChatCard from "./ChatCard";
@@ -259,8 +259,8 @@ function ComplaintDetails({p_complain_data, p_data, p_complainDetails, user}) {
                                                 <>
                                                     <Divider/>
                                                     {i.attachments.split(',').map(v => (
-                                                        <span onClick={() => handlePreview(baseUrl + `/${v}`)}>
-                                                                 <Avatar src={baseUrl + `/${v}`}
+                                                        <span onClick={() => handlePreview(awsb + `/${v}`)}>
+                                                                 <Avatar src={awsb + `/${v}`}
                                                                          className='ml-2' shape="square"
                                                                          size={140} icon="user"/>
                                                              </span>))}
@@ -275,7 +275,7 @@ function ComplaintDetails({p_complain_data, p_data, p_complainDetails, user}) {
                             {discuss.status === 'open' && (
                                 <div className={`addComment clearfix`}>
                                     <div className={'commentAvatar'}>
-                                        <Avatar size="50" src={baseUrl + `/${user.employee.employee_photo}`}/>
+                                        <Avatar size="50" src={awsb + `/${user.employee.employee_photo}`}/>
                                     </div>
                                     <div className={'contentWrapper'}>
                                         {(!user.user_cnic) &&
@@ -351,7 +351,7 @@ function ComplaintDetails({p_complain_data, p_data, p_complainDetails, user}) {
                                         <ul className={'participantsList'}>
                                             {[...new Set(data.map(item => item.employee_photo))].map(participant => (
                                                 <li className={'participantsItem'} key={participant}>
-                                                    <Avatar size="25" src={baseUrl + '/' + participant}/>
+                                                    <Avatar size="25" src={awsb + '/' + participant}/>
                                                 </li>
                                             ))}
                                         </ul>

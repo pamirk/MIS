@@ -2,7 +2,7 @@ import {useRouter} from 'next/router'
 import React, {useState} from "react";
 import moment from "moment";
 import {Avatar, Button, Card, Divider, Icon, Input, Layout, message, Modal, Select, Switch, Upload} from "antd";
-import baseUrl from "../../utils/baseUrl";
+import baseUrl, {awsb} from "../../utils/baseUrl";
 import axios from "axios";
 import ChatCard from "./ChatCard";
 import UserRemoteSelect from "./UserRemoteSelect";
@@ -306,7 +306,7 @@ function ComplaintDetails({p_complain_data, p_data, p_complainDetails, user}) {
                                 {(isAssigned)
                                     ? <Card.Meta
                                         avatar={<Avatar
-                                            src={baseUrl + "/" + complainDetails.employee_photo}/>}
+                                            src={awsb + "/" + complainDetails.employee_photo}/>}
                                         title={complainDetails.full_name}
                                         description={complainDetails.email}/>
                                     : <Card.Meta description="No agent assigned to this ticket."/>

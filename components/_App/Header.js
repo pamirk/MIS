@@ -1,5 +1,6 @@
 import React from 'react';
 import baseUrl from "../../utils/baseUrl";
+import {awsb} from "../../utils/baseUrl";
 import {Avatar, Dropdown, Icon, Layout, Menu} from "antd";
 import Link from "next/link";
 import Router, {useRouter} from "next/router";
@@ -39,7 +40,7 @@ function Header({user}) {
                   mode="horizontal">
                 {(authUser && !authUser.user_cnic) &&
                 <Menu.Item key="Avatar">
-                    <Avatar size={32} src={baseUrl + '/' + authUser.employee_photo}/>
+                    <Avatar size={32} src={awsb + '/' + authUser.employee_photo}/>
                     {/*overlay={avatarDropdown}*/}
                   {/*  <Dropdown className="list-inline-item"  trigger={['click']} placement="bottomRight">
                         <a className="ant-dropdown-link no-link-style" >${config.hostUrl}/${authUser.employee_photo}

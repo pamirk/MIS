@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Button, Card, Divider, Form, Icon, Input, message, Modal, Table, Upload} from "antd";
 import {Col, Row} from "reactstrap";
 import axios from "axios";
-import baseUrl from "../../../utils/baseUrl";
+import baseUrl, {awsb} from "../../../utils/baseUrl";
 import moment from "moment";
 
 const {Dragger} = Upload;
@@ -64,7 +64,7 @@ function Documents({id, employee, user, form}) {
                 <span><a style={{
                     color: ' #0a8080',
                     transition: 'color 125ms ease-in-out'
-                }} target='_blank' href={baseUrl + '/'+ record.document_link}>{record.document_name}</a></span>
+                }} target='_blank' href={awsb + '/'+ record.document_link}>{record.document_name}</a></span>
             )
         },
         {
