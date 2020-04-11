@@ -3,10 +3,67 @@ const mysql = require("mysql");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const AWS = require("aws-sdk");
+
 const jet_secret = "d,f.1`!@f#$&*()@dnkfndf";
 
 const database = new Database();
+/*file {
+  fieldname: 'file',
+  originalname: 'pamir.jpeg',
+  encoding: '7bit',
+  mimetype: 'image/jpeg',
+  buffer: ,
+  size: 12061
+}
+*/
 
+/*
+ Bucket Name : bucketeer-c655f294-62a1-4abb-a015-7b4331d63cdd
+Daily Average Storage: (source: AWS Cloudwatch)
+Region: us-east-1
+Access Key ID: AKIAVVKH7VVUCRR2SRNS
+Secret Access Key: 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
+Public URL: https://bucketeer-c655f294-62a1-4abb-a015-7b4331d63cdd.s3.amazonaws.com/public/
+*/
+async function saveFile(file) {
+    let s3 = new AWS.S3({
+        accessKeyId: "AKIAVVKH7VVUCRR2SRNS",
+        secretAccessKey: "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",
+        region: "us-east-1"
+    });
+    let params = {
+        Bucket: "bucketeer-c655f294-62a1-4abb-a015-7b4331d63cdd", // BUCKETEER_BUCKET_NAME
+        Key: Date.now() + Math.random() + '-' + file.originalname,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+        ACL: "public-read"
+    };
+    return new Promise((resolve, reject) => {
+        s3.upload(params, function (err, data) {
+            if (err) return reject(err);
+            resolve({fileLink: data});
+        });
+    });
+}
+
+exports.upload = async (req, res) => {
+    const file = req.file;
+    try {
+        let r = await saveFile(file);
+        console.log("err, rows: ", r.fileLink.key);
+        res.json({a: 200});
+    } catch (e) {
+        res.json({e});
+    }
+
+
+    /*saveFile(file)
+        .then(i => {
+            console.log("value", i.fileLink.key);
+            res.json({key: i.fileLink.key})
+        });*/
+};
 exports.add_employee_role = async (req, res) => {
     try {
         const {r_id, authorizedBy, e_ids} = req.body;
@@ -929,8 +986,22 @@ exports.reporting_complains = async (req, res) => {
 };
 exports.create_consumer = async (req, res) => {
     try {
-        console.log(req.body);
-        console.log(req.files);
+        let cnicFront = null;
+        let cnicBack = null;
+        let wasaBill = null;
+        let r;
+        if (req.files.user_cnic_front_image[0]) {
+            r = await saveFile(req.files.user_cnic_front_image[0]);
+            cnicFront = r.fileLink.key
+        }
+        if (req.files.user_cnic_back_image[0]) {
+            r = await saveFile(req.files.user_cnic_back_image[0]);
+            cnicBack = r.fileLink.key
+        }
+        if (req.files.user_wasa_bill_image[0]) {
+            r = await saveFile(req.files.user_wasa_bill_image[0]);
+            wasaBill = r.fileLink.key
+        }
         const Values = [
             req.body.account_number,
             req.body.user_cnic,
@@ -939,11 +1010,7 @@ exports.create_consumer = async (req, res) => {
             req.body.user_password,
             req.body.user_address,
             req.body.user_contact,
-            req.files.user_cnic_front_image[0].path,
-            req.files.user_cnic_back_image[0].path,
-            req.files.user_wasa_bill_image[0].path,
-        ];
-        console.log(Values);
+            cnicFront, cnicBack, wasaBill,];
 
         const querySting = "insert into user_registration_table(account_number, user_cnic, user_name, user_email, user_password, user_address, user_contact, user_cnic_front_image, user_cnic_back_image, user_wasa_bill_image) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         database.query(querySting, Values)
@@ -963,25 +1030,26 @@ exports.create_consumer = async (req, res) => {
 
 exports.create_employee_designation = async (req, res) => {
     try {
-        //console.log(req.body);
-        const employeeValues = [
-            req.body.employee_id,
-            req.body.des_id,
-            moment(req.body.designation_order_date).format('YYYY-MM-DD').toString(),
-            moment(req.body.des_appointment_date).format('YYYY-MM-DD').toString(),
-            req.file.path];
-
-        const querySting = `insert into employees_designations(employee_id, des_id, order_date, appointment_date, order_letter_photo)
+        saveFile(req.file)
+            .then(i => {
+                const employeeValues = [
+                    req.body.employee_id,
+                    req.body.des_id,
+                    moment(req.body.designation_order_date).format('YYYY-MM-DD').toString(),
+                    moment(req.body.des_appointment_date).format('YYYY-MM-DD').toString(),
+                    i.fileLink.key];
+                const q = `insert into employees_designations(employee_id, des_id, order_date, appointment_date, order_letter_photo)
                             values (?, ?, ?, ?, ?);`;
 
-        database.query(querySting, employeeValues)
-            .then(rows => {
-                const eemployeesDesignations_id = rows.insertId;
-                res.json({status: 200, eemployeesDesignations_id})
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
+                database.query(q, employeeValues)
+                    .then(rows => {
+                        const eemployeesDesignations_id = rows.insertId;
+                        res.json({status: 200, eemployeesDesignations_id})
+                    }).catch(err => {
+                    console.log(err);
+                    return res.json({status: 500, err: err});
+                })
+            });
     } catch (error) {
         console.error(error);
         res.status(403).send("create_employee_designation error");
@@ -996,8 +1064,8 @@ exports.complain_register = async (req, res) => {
             req.body.complain_status,
         ];
         console.log(Values);
-        const querySting = "insert into consumer_complains_table(complain_id, account_number, complain_body, complain_status) values (?, ?, ?, ?);";
-        database.query(querySting.Values)
+        const q = "insert into consumer_complains_table(complain_id, account_number, complain_body, complain_status) values (?, ?, ?, ?);";
+        database.query(q.Values)
             .then(rows => {
                 console.log("200");
                 res.json({status: 200})
@@ -1014,30 +1082,31 @@ exports.complain_register = async (req, res) => {
 
 exports.reporting_attachment = async (req, res) => {
     try {
-        console.log(req.body);
-        const Values = [
-            req.body.attachment_id,
-            req.body.reporting_id,
-            req.file.path,
-            req.body.attachment_file_type
-        ];
+        saveFile(req.file)
+            .then(i => {
+                const Values = [
+                    req.body.attachment_id,
+                    req.body.reporting_id,
+                    i.fileLink.key,
+                    req.body.attachment_file_type
+                ];
 
-        console.log(Values);
-        const querySting =
-                `insert into reporting_attachments( reporting_attachments_id, complains_reporting_id
+                console.log(Values);
+                const querySting =
+                        `insert into reporting_attachments( reporting_attachments_id, complains_reporting_id
                                                   , reporting_attachment_name
                                                   , reporting_attachment_file_type)
                  values (?, ?, ?, ?);`;
 
-        database.query(querySting, Values)
-            .then(rows => {
-                console.log("200");
-                res.json({status: 200})
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
-
+                database.query(querySting, Values)
+                    .then(rows => {
+                        console.log("200");
+                        res.json({status: 200})
+                    }).catch(err => {
+                    console.log(err);
+                    return res.json({status: 500, err: err});
+                })
+            });
     } catch (error) {
         console.error(error);
         res.status(403).send("reporting_attachment error");
@@ -1046,24 +1115,26 @@ exports.reporting_attachment = async (req, res) => {
 
 exports.postConsumerAttachment = async (req, res) => {
     try {
-        console.log(req.body);
-        const Values = [
-            req.body.attachment_id,
-            req.body.complain_id.toString(),
-            req.file.path,
-            req.body.attachment_file_type
-        ];
-        console.log(Values);
-        const querySting = `insert into consumer_attachment(attachment_id, complain_id, attachment_name, attachment_file_type)
+        saveFile(req.file)
+            .then(i => {
+                const Values = [
+                    req.body.attachment_id,
+                    req.body.complain_id.toString(),
+                    i.fileLink.key,
+                    req.body.attachment_file_type
+                ];
+                console.log(Values);
+                const querySting = `insert into consumer_attachment(attachment_id, complain_id, attachment_name, attachment_file_type)
                             values (?, ?, ?, ?);`;
-        database.query(querySting, Values)
-            .then(rows => {
-                console.log("200");
-                res.json({status: 200})
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
+                database.query(querySting, Values)
+                    .then(rows => {
+                        console.log("200");
+                        res.json({status: 200})
+                    }).catch(err => {
+                    console.log(err);
+                    return res.json({status: 500, err: err});
+                })
+            });
     } catch (error) {
         console.error(error);
         res.status(403).send("[postConsumerAttachment] error");
@@ -1167,13 +1238,13 @@ exports.get_employee_status = async (req, res) => {
 
 exports.upload_profile_image = async (req, res) => {
     try {
-        console.log(req.body.employee_id);
-        console.log(req.file.path);
-        const queryString = "UPDATE employees set employees.employee_photo = ? where employees.employee_id = ? ";
-        database.query(queryString, [req.file.path, req.body.employee_id])
-            .then(rows => res.json({status: 200}))
-            .catch(error => res.json({status: 500, err: error.sqlMessage}));
-
+        saveFile(req.file)
+            .then(i => {
+                const queryString = "UPDATE employees set employees.employee_photo = ? where employees.employee_id = ? ";
+                database.query(queryString, [i.fileLink.key, req.body.employee_id])
+                    .then(rows => res.json({status: 200}))
+                    .catch(error => res.json({status: 500, err: error.sqlMessage}));
+            });
     } catch (error) {
         res.json({status: 500, err: error.sqlMessage});
     }
@@ -1192,12 +1263,13 @@ exports.documents = async (req, res) => {
 };
 exports.document_file = async (req, res) => {
     try {
-        const queryString = `INSERT into documents(document_name, document_link, employee_id, enterby_id) VALUE (?, ?, ?, ?)`;
-        database.query(queryString, [req.body.document_name, req.file.path, req.body.employee_id, req.body.enterby_id])
-            .then(rows => {
-                res.json({status: 200, rows})
-            })
-            .catch(error => res.json({status: 500, err: error.sqlMessage}));
+        saveFile(req.file)
+            .then(i => {
+                const q = `INSERT into documents(document_name, document_link, employee_id, enterby_id) VALUE (?, ?, ?, ?)`;
+                database.query(q, [req.body.document_name, i.fileLink.key, req.body.employee_id, req.body.enterby_id])
+                    .then(rows => res.json({status: 200, rows}))
+                    .catch(error => res.json({status: 500, err: error.sqlMessage}));
+            });
     } catch (error) {
         res.json({status: 500, err: error.sqlMessage});
     }
@@ -1205,30 +1277,33 @@ exports.document_file = async (req, res) => {
 exports.create = async (req, res) => {
     try {
         const e = req.body;
-        const values = [
-            e.form_number,
-            e.cnic,
-            e.full_name,
-            e.father_name,
-            moment(e.appointment_date).format('YYYY-MM-DD'),
-            moment(e.birth_date).format('YYYY-MM-DD'),
-            e.gender,
-            e.email,
-            e.local,
-            req.file.path];
+        saveFile(req.file)
+            .then(i => {
+                const values = [
+                    e.form_number,
+                    e.cnic,
+                    e.full_name,
+                    e.father_name,
+                    moment(e.appointment_date).format('YYYY-MM-DD'),
+                    moment(e.birth_date).format('YYYY-MM-DD'),
+                    e.gender,
+                    e.email,
+                    e.local,
+                    i.fileLink.key];
 
-        const q = `insert into employees(form_number, cnic, full_name, father_name, appointment_date,
+                const q = `insert into employees(form_number, cnic, full_name, father_name, appointment_date,
                                                    birth_date, gender, email, local, employee_photo)
                              values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
-        database.query(q, values)
-            .then(rows => {
-                const employee_id = rows.insertId;
-                res.json({status: 200, employee_id})
-            })
-            .catch(error => {
-                console.log("database error in leaves routes:  ", error);
-                res.json({status: 500, err: error.sqlMessage});
+                database.query(q, values)
+                    .then(rows => {
+                        const employee_id = rows.insertId;
+                        res.json({status: 200, employee_id})
+                    })
+                    .catch(error => {
+                        console.log("database error in leaves routes:  ", error);
+                        res.json({status: 500, err: error.sqlMessage});
+                    });
             });
     } catch (error) {
         console.error(error);
@@ -1936,31 +2011,34 @@ exports.sc = async (req, res) => {
 
 exports.promote_emoployee = async (req, res) => {
     try {
-        const employeeValues = [
-            req.body.employee_id,
-            req.body.des_id,
-            moment(req.body.emp_des_order_date).format('YYYY-MM-DD hh:mm:ss'),
-            moment(req.body.emp_des_appointment_date).format('YYYY-MM-DD hh:mm:ss'),
-            req.file.path
-        ];
-        const update_querySting = `UPDATE employees_designations
+        saveFile(req.file)
+            .then(i => {
+                const employeeValues = [
+                    req.body.employee_id,
+                    req.body.des_id,
+                    moment(req.body.emp_des_order_date).format('YYYY-MM-DD hh:mm:ss'),
+                    moment(req.body.emp_des_appointment_date).format('YYYY-MM-DD hh:mm:ss'),
+                    i.fileLink.key
+                ];
+                const update_querySting = `UPDATE employees_designations
                                    SET is_active='0'
                                    where employee_id = ?;`;
 
-        const querySting = "insert into employees_designations(employee_id, des_id, order_date, appointment_date, order_letter_photo ) values (?, ?, ?, ?, ?);";
+                const querySting = "insert into employees_designations(employee_id, des_id, order_date, appointment_date, order_letter_photo ) values (?, ?, ?, ?, ?);";
 
-        database.query(update_querySting, [req.body.employee_id])
-            .then(rows => {
-                database.query(querySting, employeeValues)
+                database.query(update_querySting, [req.body.employee_id])
                     .then(rows => {
-                        const eemployeesDesignations_id = rows.insertId;
-                        return res.json({status: 200, eemployeesDesignations_id})
+                        database.query(querySting, employeeValues)
+                            .then(rows => {
+                                const eemployeesDesignations_id = rows.insertId;
+                                return res.json({status: 200, eemployeesDesignations_id})
+                            })
                     })
-            })
-            .catch(err => {
-                console.log("500", err.sqlMessage);
-                return res.json({status: 500, err: err.sqlMessage});
-            })
+                    .catch(err => {
+                        console.log("500", err.sqlMessage);
+                        return res.json({status: 500, err: err.sqlMessage});
+                    })
+            });
     } catch (error) {
         console.error(error);
         return res.json({status: 500, err: error.sqlMessage});
@@ -2006,33 +2084,31 @@ function convert(str) {
 
 exports.transfer_emoployee = async (req, res) => {
     try {
-        //console.log(req.body);
-        const values = [
-            req.body.employee_id,
-            req.body.tubewell_id,
-            req.body.description,
-            convert(req.body.transfer_Date),
-            convert(req.body.joining_Date),
-            req.file.path,
-        ];
-        //console.log(values);
-        // res.json({status: 200})
-        //console.log(employeeValues);
-        const update_querySting = `UPDATE transfers
+
+        saveFile(req.file)
+            .then(i => {
+                const values = [
+                    req.body.employee_id,
+                    req.body.tubewell_id,
+                    req.body.description,
+                    convert(req.body.transfer_Date),
+                    convert(req.body.joining_Date),
+                    i.fileLink.key,
+                ];
+                const update_querySting = `UPDATE transfers
                                    SET is_active='0'
                                    where employee_id = ?;`;
-        const querySting = "insert into transfers(employee_id, tubewell_id, description, transfer_date, joining_date, order_letter_photo) values (?, ?, ?, ?, ?, ?);";
-        database.query(update_querySting, [req.body.employee_id])
-            .then(rows => {
-                database.query(querySting, values)
+                const querySting = "insert into transfers(employee_id, tubewell_id, description, transfer_date, joining_date, order_letter_photo) values (?, ?, ?, ?, ?, ?);";
+                database.query(update_querySting, [req.body.employee_id])
                     .then(rows => {
-                        res.json({status: 200})
+                        database.query(querySting, values)
+                            .then(rows => res.json({status: 200}))
                     })
-            })
-            .catch(err => {
-                console.log("500", err.sqlMessage);
-                return res.json({status: 500, err: err.sqlMessage});
-            })
+                    .catch(err => {
+                        console.log("500", err.sqlMessage);
+                        return res.json({status: 500, err: err.sqlMessage});
+                    })
+            });
     } catch (error) {
         console.error(error);
         res.status(500).send("transfer_employee error");

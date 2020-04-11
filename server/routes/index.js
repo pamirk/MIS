@@ -1,33 +1,39 @@
 const express = require("express");
 const multer = require('multer');
 const jimp = require("jimp");
-const AWS = require("aws-sdk");
+
 
 const router = express.Router();
 const employeeController = require("../controllers/employeeController");
-git
 
-const storage = multer.diskStorage({
+const storageX = multer.memoryStorage();
+const uploadX = multer({storage: storageX, limits: {fileSize: 5 * 1024 * 1024}});
+
+router.post("/upload", uploadX.single("file"), employeeController.upload);
+
+
+/*const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, './uploads/')
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + Math.random() + '-' + file.originalname + ".jpg")
     }
-});
-const fileFilter = (req, file, cb) => {
+});*/
+/*const fileFilter = (req, file, cb) => {
     if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg') {
         cb(null, true)
     } else {
         cb(null, false)
     }
-};
-const upload = multer({
+};*/
+/*const upload = multer({
     storage: storage,
     limits: {fileSize: 5 * 1024 * 1024},
     fileFilter: fileFilter
-});
+});*/
 
+/*
 const avatarUploadOptions = {
     storage: multer.memoryStorage(),
     limits: {fileSize: 1024 * 1024 * 5},
@@ -39,11 +45,12 @@ const avatarUploadOptions = {
         }
     }
 };
-
+*/
+/*
 const uploadAvatar = multer(avatarUploadOptions).single("image");
 const noneAvatar = multer(avatarUploadOptions).none();
-
-const resizeAvatar = async (req, res, next) => {
+*/
+/*const resizeAvatar = async (req, res, next) => {
     if (!req.file) {
         return next();
     }
@@ -55,15 +62,8 @@ const resizeAvatar = async (req, res, next) => {
     await image.resize(250, jimp.AUTO);
     await image.write(`./${req.file.path}`);
     next();
-};
+};*/
 
-
-/* Error handler for async / await functions */
-const catchErrors = fn => {
-    return function (req, res, next) {
-        return fn(req, res, next).catch(next);
-    };
-};
 router.get("/roles/:id", employeeController.roles);
 router.get("/employees_in_role/:id", employeeController.employees_in_role);
 router.get("/role_details/:id", employeeController.role_details);
@@ -119,25 +119,26 @@ router.get("/employee_transfer_details/:id", employeeController.employee_transfe
 router.get("/get_employee_status/:id", employeeController.get_employee_status);
 
 
-router.post("/employee_create", uploadAvatar, resizeAvatar, employeeController.create);
-router.post("/upload_profile_image", uploadAvatar, resizeAvatar, employeeController.upload_profile_image);
-router.post("/document_file", uploadAvatar, resizeAvatar, employeeController.document_file);
+router.post("/employee_create", uploadX.single("image"), employeeController.create);
+router.post("/upload_profile_image", uploadX.single("image"), employeeController.upload_profile_image);
+router.post("/document_file", uploadX.single("image"), employeeController.document_file);
 router.get("/documents/:id", employeeController.documents);
-router.post("/update_employee_status",  employeeController.update_employee_status);
+router.post("/update_employee_status", employeeController.update_employee_status);
 router.post("/set_employee_password", employeeController.set_employee_password);
 
-router.post("/create_employee_designation", uploadAvatar, resizeAvatar, employeeController.create_employee_designation);
+router.post("/create_employee_designation", uploadX.single("image"), employeeController.create_employee_designation);
 router.post("/employee_create_address", employeeController.employee_create_address);
 router.post("/add_employee_address", employeeController.add_employee_address);
 router.post("/create_division", employeeController.create_division);
 router.post("/create_department", employeeController.createDepartment);
 router.post("/create_designation", employeeController.createDesignation);
-router.post("/promote_emoployee", uploadAvatar, resizeAvatar, employeeController.promote_emoployee);
-router.post("/transfer_emoployee", uploadAvatar, resizeAvatar, employeeController.transfer_emoployee);
-router.post("/add_emoployee_training", upload.single('image'), employeeController.add_emoployee_training);
+router.post("/promote_emoployee", uploadX.single("image"), employeeController.promote_emoployee);
+router.post("/transfer_emoployee", uploadX.single("image"), employeeController.transfer_emoployee);
+//TODO will be removed
+router.post("/add_emoployee_training", uploadX.single('image'), employeeController.add_emoployee_training);
 router.post("/one_employee_update", employeeController.one_employee_update);
-router.post("/employee_designation_update", upload.single('image'), employeeController.employee_designation_update);
-router.post("/employee_address_update",  employeeController.employee_address_update);
+router.post("/employee_designation_update", uploadX.single('image'), employeeController.employee_designation_update);
+router.post("/employee_address_update", employeeController.employee_address_update);
 
 router.get("/complaints_list", employeeController.complaints_list);
 router.get("/complaints_weekly_counts", employeeController.complaints_weekly_counts);
@@ -150,14 +151,14 @@ router.get("/employee_complain_list/:id", employeeController.employee_complain_l
 router.get("/single_complain/:id", employeeController.single_complain);
 router.get("/complain/:id", employeeController.getcomplain);
 router.get("/sc/:id", employeeController.sc);
-router.post("/complain_register", upload.single('image'), employeeController.complain_register);
+router.post("/complain_register", uploadX.single('image'), employeeController.complain_register);
 
-router.post("/reporting_complains", upload.none(), employeeController.reporting_complains);
+router.post("/reporting_complains", uploadX.none(), employeeController.reporting_complains);
 
-router.post("/reporting_attachment", uploadAvatar, resizeAvatar, employeeController.reporting_attachment);
+router.post("/reporting_attachment", uploadX.single("image"), employeeController.reporting_attachment);
 
-router.post("/postConsumerAttachment", upload.single('image'), employeeController.postConsumerAttachment);
+router.post("/postConsumerAttachment", uploadX.single('image'), employeeController.postConsumerAttachment);
 //router.post("/one_complain_register_Attachment", upload.single('image'), employeeController.one_complain_register_Attachment);
-router.post("/create_consumer", upload.fields([{name: 'user_cnic_front_image'}, {name: 'user_cnic_back_image'}, {name: 'user_wasa_bill_image'}]), employeeController.create_consumer);
+router.post("/create_consumer", uploadX.fields([{name: 'user_cnic_front_image'}, {name: 'user_cnic_back_image'}, {name: 'user_wasa_bill_image'}]), employeeController.create_consumer);
 
 module.exports = router;

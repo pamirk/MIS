@@ -25,7 +25,7 @@ module.exports = class Database {
         return new Promise((resolve, reject) => {
             this.pool.getConnection(function (err, connection) {
                 if (err) return reject(err); // not connected!
-                connection.query(sql, args, (err, rows) => {
+                    connection.query(sql, args, (err, rows) => {
                     connection.release();
                     if (err) return reject(err);
                     resolve(rows);
