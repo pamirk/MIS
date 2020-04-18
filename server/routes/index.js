@@ -97,8 +97,10 @@ router.post("/user_login", employeeController.user_login);
 router.get("/account", employeeController.account);
 
 
+router.get("/tubewell/:id", employeeController.tubewell);
 router.get("/tubewells", employeeController.tubewells);
 router.post("/update_tubewell", employeeController.update_tubewell);
+router.post("/change_tubewell_status", employeeController.change_tubewell_status);
 
 
 router.get("/", employeeController.index);

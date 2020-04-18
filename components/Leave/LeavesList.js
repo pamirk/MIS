@@ -22,6 +22,7 @@ function LeavesList({user, leaves, form: {getFieldDecorator, validateFields}}) {
 
     useEffect(() => {
         let mydata = [];
+        if (!leaves) return
         for (let i = 0; i < leaves.length; i++) {
             const leave = leaves[i];
             mydata.push({
@@ -38,7 +39,7 @@ function LeavesList({user, leaves, form: {getFieldDecorator, validateFields}}) {
             })
         }
         setData(mydata)
-    }, []);
+    }, [leaves]);
 
     useEffect(() => {
         if (search === LEAVE_STATUS.ALL) {

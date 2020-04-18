@@ -98,7 +98,7 @@ function Index({employee, address, designations, ctx, user, roles}) {
             <UserHeader id={id} name={employee.full_name} email={employee.email} formNumber={employee.form_number}
                         designation={designations[0] && designations[0].des_title} status='Active'
                         url={employee.employee_photo ? awsb + '/' + employee.employee_photo : placeholderAvatarURL}
-                        contact={(address[0]) && address[0].phone_number + " " + address[0].phone_number2}/>
+                        contact={(address[0]) && address[0].phone_number}/>
             <div className='main'>
                 <Menu
                     mode='horizontal'

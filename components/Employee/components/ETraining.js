@@ -1,6 +1,21 @@
 import * as React from 'react';
 import {Component} from "react";
-import {Button, Card, Col, Divider, Form, Icon, Input, message, Modal, Spin, Table, Tooltip, Typography} from "antd";
+import {
+    Button,
+    Card,
+    Col,
+    Divider,
+    Form,
+    Icon,
+    Input,
+    message,
+    Modal,
+    Skeleton,
+    Spin,
+    Table,
+    Tooltip,
+    Typography
+} from "antd";
 import Highlighter from "react-highlight-words";
 import TrainingComponent from "./TrainingComponent";
 import baseUrl from "../../../utils/baseUrl";
@@ -14,15 +29,6 @@ import {parseCookies} from "nookies";
 import {redirectUser} from "../../../utils/auth";
 import axios from "axios";
 import List18 from "../../Training/List18";
-
-const spinnerStyle = {
-    textAlign: 'center',
-    background: 'rgba(0, 0, 0, 0.05)',
-    borderRadius: '4px',
-    marginBottom: '20px',
-    padding: '30px 50px',
-    margin: '20px 0'
-};
 export default function Training({id, ctx, employee}) {
     const [loading, setLoading] = useState(false);
     const [triggerUseEffect, setTriggerUseEffect] = useState(false);
@@ -280,44 +286,38 @@ export default function Training({id, ctx, employee}) {
     const modelContent = (
         <Card bordered={false}
               title={<strong className={'text-large font-weight-bold'}>Add {employee.full_name}'s Trainings</strong>}>
-            {(loading2) ?
-                <div style={spinnerStyle}><Spin spinning={loading2}/></div> :
-                <>{(allTrainings) &&
-                <><Table loading={loading} rowSelection={rowSelection}
-                         columns={columns2} dataSource={allTrainings} scroll={{x: 1200}}/>
-                    <Divider/>
-                    <div className='flex-justify-content'>
-                        {(selectedTrainingRows.length > 0) &&
-                        <Button size={"large"} className='mr-2' htmlType="submit" loading={loading}
-                                disabled={selectedTrainingRows.length === 0 || loading} onClick={handleConfirm}
-                                style={{backgroundColor: '#0a8080', color: 'white'}}>Confirm</Button>}
-                        <Button size={"large"} disabled={loading} onClick={handleCancel}>Cancel</Button>
-                    </div>
-                </>
-                }
-                </>
-            }
+            <><Table loading={loading2} rowSelection={rowSelection}
+                     columns={columns2} dataSource={allTrainings} scroll={{x: 1200}}/>
+                <Divider/>
+                <div className='flex-justify-content'>
+                    {(selectedTrainingRows.length > 0) &&
+                    <Button size={"large"} className='mr-2' loading={loading2}
+                            disabled={selectedTrainingRows.length === 0 || loading2} onClick={handleConfirm}
+                            style={{backgroundColor: '#0a8080', color: 'white'}}>Confirm</Button>}
+                    <Button size={"large"} onClick={handleCancel}>Cancel</Button>
+                </div>
+            </>
         </Card>
     );
     return (
         <>
-            {(categoryData && categoryData.length > 0) && <div className="card">
-                <div className="card-body">
-                    <List18 categoryData={categoryData}/>
-                </div>
-            </div>}
+            <Card className='mb-2'>
+                <Skeleton loading={!categoryData} active>
+                    {(categoryData && categoryData.length > 0) &&
+                        <div className="card-body">
+                            <List18 categoryData={categoryData}/>
+                        </div>}
+                </Skeleton>
+
+            </Card>
             <Button style={{backgroundColor: '#0a8080', color: 'white'}} size={"large"}
                     onClick={handleAddEmployeeTraining}> Add {employee.full_name}'s Trainings </Button>
-            <div>{(tabledata) && <Table columns={columns} dataSource={tabledata} pagination={false} scroll={{x: 1200}}
-                                        onRow={(record, rowIndex) => ({onClick: event => Router.push(`/trainings/${record.id}`)})}/>
-            }</div>
+            <Table className='mt-2' loading={loading} columns={columns} dataSource={tabledata} pagination={false} scroll={{x: 1200}}
+                   onRow={(record, rowIndex) => ({onClick: event => Router.push(`/trainings/${record.id}`)})}/>
             <Modal
-                destroyOnClose={true}
-                width={'100%'}
-                visible={modelVisible}
-                onCancel={handleCancel}
-                footer={null}
-                closable={false}>
+                destroyOnClose={true} width={'100%'}
+                visible={modelVisible} onCancel={handleCancel}
+                footer={null} closable={false}>
                 {modelContent}
             </Modal>
         </>

@@ -1,29 +1,30 @@
-import React, {Component, useEffect, useState, useRef} from "react";
-import {Button, Divider, Icon, Input, Table} from 'antd';
+import React, {useEffect, useRef, useState} from "react";
+import {Avatar, Button, Divider, Icon, Input, Table, List} from 'antd';
 import Highlighter from 'react-highlight-words';
 import Link from "next/link";
+import { useRouter } from 'next/router'
 
+let placeholderAvatarURL = './../../static/placeholderAvatar.svg';
 
 export default function EmployeeTable({data}) {
-    const [tableData, setTableData] = useState(null);
+    const [tableData, setTableData] = useState([]);
     const [searchText, setSearchText] = useState('');
     const searchInput = useRef(null);
-
+    const router = useRouter()
     useEffect(() => {
-        let mydata = [];
+        let myData = [];
         for (let i = 0; i < data.length; i++) {
-            const employee = data[i];
-            mydata.push({
-                key: employee.employee_id,
-                name: employee.full_name,
-                fathername: employee.father_name,
-                email: employee.email,
-                cnic: employee.cnic,
-                local: employee.local,
-                birth_date: employee.birth_date.substring(0, 10),
+            const e = data[i];
+            myData.push({
+                key: e.employee_id,
+                form_number: e.form_number,
+                full_name: e.full_name,
+                father_name: e.father_name,
+                employee_photo: e.employee_photo || "",
+                des_title: e.des_title || "",
             })
         }
-        setTableData(mydata)
+        setTableData(myData)
     }, []);
 
 
@@ -86,50 +87,40 @@ export default function EmployeeTable({data}) {
 
     const columns = [
         {
+            title: 'Form #',
+            dataIndex: 'form_number',
+            key: 'form_number',
+            width: '12%',
+            ...getColumnSearchProps('form_number'),
+        },
+        {
             title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            width: '15%',
-            ...getColumnSearchProps('name'),
+            dataIndex: 'full_name',
+            key: 'full_name',
+            ...getColumnSearchProps('full_name'),
+            render: (text, record) => (
+                <List.Item className='p-0'>
+                    <List.Item.Meta avatar={<Avatar size='default' src={record.employee_photo || placeholderAvatarURL}/>}
+                        title={<Link href={`employee/${record.key}`} ><a>{record.full_name}</a></Link>}/>
+                </List.Item>
+            ),
         },
         {
             title: 'Father Name',
-            dataIndex: 'fathername',
-            key: 'fathername',
-            width: '15%',
-            ...getColumnSearchProps('fathername'),
+            dataIndex: 'father_name',
+            key: 'father_name',
+            ...getColumnSearchProps('father_name'),
         },
         {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-            width: '20%',
-            ...getColumnSearchProps('email'),
+            title: 'Job title',
+            dataIndex: 'des_title',
+            key: 'des_title',
+            ...getColumnSearchProps('des_title'),
         },
         {
-            title: 'CNIC',
-            dataIndex: 'cnic',
-            key: 'cnic',
-            width: '13%',
-            ...getColumnSearchProps('cnic'),
-        },
-        {
-            title: 'Local',
-            dataIndex: 'local',
-            key: 'local',
-            width: '10%',
-            ...getColumnSearchProps('local'),
-        },
-        {
-            title: 'Birth Date',
-            dataIndex: 'birth_date',
-            key: 'birth_date',
-            width: '10%',
-            ...getColumnSearchProps('birth_date'),
-        },
-        {
-            title: 'Action',
+            title: '',
             dataIndex: 'action',
+            width: '15%',
             key: 'action',
             render: (text, record) => (
                 <span>
@@ -150,7 +141,7 @@ export default function EmployeeTable({data}) {
 
     return (
         <>
-            <Table  columns={columns} dataSource={tableData} scroll={{ x: 1200 }}/>
+            <Table size={"default"} columns={columns} dataSource={tableData} scroll={{x: 1000}} onRowClick={record => null /*router.push(`/employee/${record.key}`)*/}/>
         </>
     );
 }

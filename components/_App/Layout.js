@@ -37,11 +37,6 @@ function AppLayout({children, user}) {
                     <a><span>Time Off</span></a>
                 </Link>
             </Menu.Item>
-            <Menu.Item key="12">
-                <Link href="/employee/details">
-                    <a><span>Personal details</span></a>
-                </Link>
-            </Menu.Item>
         </Menu>
         :
         <Menu theme="dark" mode="inline" defaultSelectedKeys={['100']}>
@@ -107,6 +102,11 @@ function AppLayout({children, user}) {
             <Menu.Item key="13">
                 <Link href="/roles">
                     <a><span>Roles</span></a>
+                </Link>
+            </Menu.Item>
+            <Menu.Item key="14">
+                <Link href="/personaldetails">
+                    <a><span>Personal details</span></a>
                 </Link>
             </Menu.Item>
         </Menu>;

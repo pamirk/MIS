@@ -198,10 +198,10 @@ export default function Promotion({designations, id, employee}) {
             {(!loading) &&
             <>
                 <div>
-                    <Button style={{backgroundColor: '#0a8080', color: 'white'}} size={"large"} onClick={showpromoteModal}>
+                    <Button className='mt-2' style={{backgroundColor: '#0a8080', color: 'white'}} size={"large"} onClick={showpromoteModal}>
                         Give {employee.full_name} Promotion
                     </Button>
-                    <div className='pt-3'>
+                    <div className='mt-3'>
                         <Table columns={columns} dataSource={tabledata} pagination={false} scroll={{x: 1200}}/>
                     </div>
                     <Modal

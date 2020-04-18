@@ -25,6 +25,7 @@ export default function Transfer({id, employee}) {
         getTransferData()
     }, []);
     const getTransferData = () => {
+        setLoading(true);
         fetch(baseUrl + `/api/employee_transfer_details/${id}`, {
             method: 'GET',
             headers: {
@@ -199,16 +200,12 @@ export default function Transfer({id, employee}) {
     let placeholderAvatarURL = './../../static/placeholderAvatar.svg';
     return (
         <>
-            {(!loading) &&
             <>
                 <Col >
-                    <Button style={{backgroundColor: '#0a8080', color: 'white'}} size={"large"} onClick={showpromoteModal}>
+                    <Button className='mt-2' style={{backgroundColor: '#0a8080', color: 'white'}} size={"large"} onClick={showpromoteModal}>
                         Transfer {employee.full_name}
                     </Button>
-                    <div className='pt-3'>
-                        <Table columns={columns} dataSource={tabledata} pagination={false} scroll={{x: 1200}}/>
-                    </div>
-
+                    <Table loading={loading} className='mt-2' columns={columns} dataSource={tabledata} pagination={false} scroll={{x: 1200}}/>
                     <Modal
                         width={780}
                         destroyOnClose={true}
@@ -231,7 +228,6 @@ export default function Transfer({id, employee}) {
                     <img alt="example" style={{width: '100%'}} src={previewImage} placeholder={placeholderAvatarURL}/>
                 </Modal>
             </>
-            }
         </>
     );
 }

@@ -4,6 +4,8 @@ import {Col, Row} from "reactstrap";
 import axios from "axios";
 import baseUrl, {awsb} from "../../../utils/baseUrl";
 import moment from "moment";
+import Link from "next/link";
+import {formItemLayout} from "../../Common/UI";
 
 const {Dragger} = Upload;
 const FormItem = Form.Item;
@@ -38,14 +40,14 @@ function Documents({id, employee, user, form}) {
             setLoading(true);
             const {documents} = await getDocuments();
             console.log(documents);
-            setDocs(formatData(documents))
+            setDocs(formatData(documents));
             setLoading(false)
         }
         fetchData();
     }, [triggerUseEffect]);
     const formatData = (data) => {
         let myData = [];
-        data.map(t => myData.push({...t, key: t.doc_id}));
+        data && data.map(t => myData.push({...t, key: t.doc_id}));
         return myData
     };
     const getDocuments = async () => {
@@ -64,7 +66,7 @@ function Documents({id, employee, user, form}) {
                 <span><a style={{
                     color: ' #0a8080',
                     transition: 'color 125ms ease-in-out'
-                }} target='_blank' href={awsb + '/'+ record.document_link}>{record.document_name}</a></span>
+                }} target='_blank' href={awsb + '/' + record.document_link}>{record.document_name}</a></span>
             )
         },
         {
@@ -84,8 +86,10 @@ function Documents({id, employee, user, form}) {
             key: 'actions',
             width: '5%',
             render: (text, record) => (
-                <span><Icon type='ellipsis' /></span>
-            )
+                <span><a style={{color: ' #0a8080', transition: 'color 125ms ease-in-out'}}
+                         target='_blank' href={awsb + '/' + record.document_link}>
+                    <Icon type="eye" theme="twoTone" title='View Document'/></a></span>
+            ),
         }
     ];
     const handlerSubmit = (event) => {
@@ -116,23 +120,13 @@ function Documents({id, employee, user, form}) {
             }
         });
     };
-    const formItemLayout = {
-        labelCol: {
-            xs: {span: 24},
-            sm: {span: 8},
-        },
-        wrapperCol: {
-            xs: {span: 24},
-            sm: {span: 16},
-        },
-    };
     const {getFieldDecorator} = form;
     return (
-        <>
+        <Card>
             <Row>
                 <Col>
-                    <h1>Employment Documents</h1>
-                    <p style={{fontSize: '18px'}}>These documents are <strong>shared</strong> between Pamir and admins.
+                    <h1 className='mt-2'>Employment Documents</h1>
+                    <p style={{fontSize: '18px'}}>These documents are <strong>shared</strong> between {employee.full_name} and admins.
                     </p>
                     <div className="text-right mr-3 mb-5">
                         <Button onClick={() => setModelVisible(true)}
@@ -149,29 +143,19 @@ function Documents({id, employee, user, form}) {
             <Row>
                 <Col>
                     <Table style={{backgroundColor: "white"}} loading={loading}
-                           columns={columns} dataSource={docs} scroll={{x: 800}}
-                           onRow={(record, rowIndex) => ({
-                               onClick: event => {
-
-                               }, // click row
-                           })}/>
+                           columns={columns} dataSource={docs} scroll={{x: 800}}/>
                 </Col>
             </Row>
             <Modal
-                destroyOnClose={true}
-                width={780}
-                visible={modelVisible}
-                onOk={handleOk}
-                onCancel={handleCancel}
-                footer={null}
-                closable={false}>
+                destroyOnClose={true} width={780} visible={modelVisible}
+                onOk={handleOk} onCancel={handleCancel}
+                footer={null} closable={false}>
                 <Card bordered={false}
                       title={<strong className={'text-large font-weight-bold'}>Upload Document</strong>}>
                     <div>Access to this file will be limited to admins, and Employee.</div>
 
                     <div className='p-5'>
                         <Form layout='vertical' onSubmit={handlerSubmit} {...formItemLayout} >
-
                             <FormItem label="Source">{getFieldDecorator('Source', {
                                 rules: [{required: true, message: "Source is required"}]
                             })
@@ -204,7 +188,7 @@ function Documents({id, employee, user, form}) {
                     </div>
                 </Card>
             </Modal>
-        </>
+        </Card>
     )
 }
 

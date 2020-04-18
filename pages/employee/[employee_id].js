@@ -34,13 +34,11 @@ Employee_id.getInitialProps = async ({query: {employee_id}, ctx}) => {
     const url = `${baseUrl}/api/show_one_employee/${employee_id}`;
     const url2 = `${baseUrl}/api/show_one_employee_address/${employee_id}`;
     const url3 = `${baseUrl}/api/employee_designation_details/${employee_id}`;
-    const employe_res = await axios.get(url);
-    const address_res = await axios.get(url2);
-    const des_res = await axios.get(url3);
+    const response = await axios.all([axios.get(url), axios.get(url2), axios.get(url3)]);
     return {
-        employee: employe_res.data[0],
-        address: address_res.data,
-        designations: des_res.data,
+        employee: response[0].data[0],
+        address: response[1].data,
+        designations: response[2].data,
         ctx
     };
 };

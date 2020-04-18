@@ -120,14 +120,10 @@ export default Home;
 Home.getInitialProps = async (ctx) => {
     const {token} = parseCookies(ctx);
     if (!token) redirectUser(ctx, "/signin");
-
     const payload = {headers: {Authorization: token}};
     const url = `${baseUrl}/api/trainings`;
     const url2 = `${baseUrl}/api/complaints_weekly_counts`;
     const url3 = `${baseUrl}/api/leaves_yearly_count`;
-
-    const {data} = await axios.get(url, payload);
-    const response2 = await axios.get(url2);
-    const response3 = await axios.get(url3);
-    return {reports: data.reports, weeks: response2.data, lv_count: response3.data.data}
+    const response = await axios.all([axios.get(url, payload), axios.get(url2), axios.get(url3)]);
+    return {reports: response[0].data.reports, weeks: response[1].data, lv_count: response[2].data.data}
 };

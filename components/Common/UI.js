@@ -1,10 +1,16 @@
-import {Icon} from "antd";
+import {Button, Icon} from "antd";
 import * as React from "react";
 
 export const cardTitleIcon = (title, icon, callBack) => (
     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
         <span>{title}</span>
         <Icon onClick={callBack} type={icon} title={`Edit ${title}`}/>
+    </div>
+)
+export const cardTitleButton = (title, btnTitle, callBack) => (
+    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+        <span>{title}</span>
+        <Button onClick={callBack}>{btnTitle}</Button>
     </div>
 )
 export const getBase64 = (img, callback) => {

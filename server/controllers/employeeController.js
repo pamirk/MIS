@@ -15,7 +15,7 @@ const database = new Database();
   mimetype: 'image/jpeg',
   buffer: ,
   size: 12061
-}
+}employee_list
 */
 
 /*
@@ -281,35 +281,22 @@ exports.role_details = async (req, res) => {
     }
 };
 exports.tubewells = async (req, res) => {
+
     try {
-        const queryString = `SELECT t.tubewell_id,
-                                    sub_div_id,
-                                    tubewell_name,
-                                    rock_type,
-                                    lat,
-                                    lng,
-                                    install_date,
-                                    elevation,
-                                    is_office,
-                                    phone1,
-                                    last_update_ts,
-                                    address,
-                                    ts.ts_id,
-                                    status_date,
-                                    status_title,
-                                    is_active,
-                                    status_description,
-                                    status_date_change
-                             from tubewells t
-                                      inner join tubewell_status ts on t.tubewell_id = ts.tubewell_id and is_active = 1;`;
-        const {employee_id} = jwt.verify(
+        const q = `SELECT t.tubewell_id,
+                               tubewell_name,
+                               status_title,
+                               status_date_change
+                            from tubewells t
+                                     inner join tubewell_status ts on t.tubewell_id = ts.tubewell_id
+                                      and is_active = 1
+                            order by status_date_change desc;`;
+        /*const {employee_id} = jwt.verify(
             req.headers.authorization,
             jet_secret
-        );
-        database.query(queryString)
-            .then(rows => {
-                return res.json({status: 200, tubewells: rows});
-            })
+        );*/
+        database.query(q)
+            .then(rows => res.json({status: 200, tubewells: rows}))
             .catch(error => {
                 console.log("database error in tubewells routes:  ", error);
                 return res.status(401).json({message: 'error in getting tubewells list'});
@@ -317,6 +304,22 @@ exports.tubewells = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(403).send("Please login again");
+    }
+};
+exports.tubewell = async (req, res) => {
+    try {
+        const q = `SELECT ts.*
+                    from tubewells t
+                    inner join tubewell_status ts on t.tubewell_id = ts.tubewell_id
+                    where t.tubewell_id = ?
+                    order by is_active desc , status_date_change desc;`;
+        const q2 = `SELECT * from tubewells where tubewell_id = ?`;
+        const rows = await database.query(q, [req.params.id]);
+        const rows2 = await database.query(q2, [req.params.id]);
+        return res.json({status: 200, tubewell: rows2[0], tubewell_status: rows});
+    } catch (err) {
+        console.error(err);
+        res.status(403).json({message: 'error in getting tubewells list', err});
     }
 };
 exports.update_tubewell = async (req, res) => {
@@ -348,6 +351,26 @@ exports.update_tubewell = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Error in posting leave");
+    }
+
+};
+exports.change_tubewell_status = async (req, res) => {
+    const {status_title, status_description, tubewell_id, change_by} = req.body;
+
+    const q = `update tubewell_status
+                set is_active = 0
+                where tubewell_id = ?`;
+    const q2 = `insert into tubewell_status(tubewell_id, status_title, is_active, 
+                status_description, status_date_change, change_by) 
+                values (?,?,1,?,CURRENT_TIMESTAMP,? )`;
+
+    try {
+        const  rows = await database.query(q,[tubewell_id]);
+        const  rows2 = await database.query(q2, [tubewell_id, status_title, status_description, change_by]);
+        return res.json({status: 200});
+    } catch (err) {
+        console.error(err);
+        return res.json({status: 500, err: err});
     }
 
 };
@@ -1579,15 +1602,17 @@ exports.showEmployee = async (req, res) => {
 };
 exports.employee_list_all = async (req, res) => {
     try {
-        console.log("responding to employee_list_all route");
-        const querySting = "SELECT * FROM employees";
-        database.query(querySting)
-            .then(rows => {
-                res.json(rows);
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
+        const q = `SELECT e.employee_id, e.full_name, e.form_number, e.employee_photo, e.father_name, d.des_title
+                            FROM employees e
+                            left join employees_designations ed on e.employee_id = ed.employee_id and  ed.is_active
+                            left join designations d on ed.des_id = d.des_id
+                            order by e.last_update_ts desc`;
+        database.query(q)
+            .then(rows => res.json(rows))
+            .catch(err => {
+                console.log(err);
+                return res.json({status: 500, err: err});
+            })
     } catch (error) {
         console.error(error);
         res.status(403).send("employee_list error");

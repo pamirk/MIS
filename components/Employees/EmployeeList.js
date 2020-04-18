@@ -1,19 +1,9 @@
-import React, {Component, useState} from 'react';
+import React, {useState} from 'react';
 import EmployeeTable from "./EmployeeTable";
 import baseUrl from "../../utils/baseUrl";
-import {Layout} from "antd";
 
 export default function EmployeeList({employees, history}) {
     const [data, setData] = useState(employees);
-
-    let handleEmployeeClicked = (index) => {
-
-
-        console.log(index);
-        this.setState(() => {
-            return {};
-        });
-    };
 
     let performSearch = (query) => {
         let url = `search?search=${query}`;
@@ -38,13 +28,9 @@ export default function EmployeeList({employees, history}) {
     };
 
     return (
-        <Layout>
-            {/*<SearchForm onSearch={this.performSearch}/>*/}
+        <>
             <EmployeeTable data={data} history={history}/>
-            {/*{(this.state.loading) ? "" :
-                        <EMenuList handleEmployeeClicked={this.handleEmployeeClicked} data={this.state.data}
-                                   history={this.props.history}/>}*/}
-        </Layout>
+        </>
     );
 
 }

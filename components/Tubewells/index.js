@@ -1,11 +1,26 @@
 import React, {useEffect, useRef, useState} from "react";
 import moment from "moment";
-import {Button, Card, Checkbox, DatePicker, Divider, Form, Icon, Input, message, Modal, Select, Table} from "antd";
+import {
+    Button,
+    Card,
+    Checkbox,
+    DatePicker,
+    Divider,
+    Form,
+    Icon,
+    Input,
+    message,
+    Modal,
+    Select,
+    Table,
+    Tooltip
+} from "antd";
 import catchErrors from "../../utils/catchErrors";
 import Highlighter from "react-highlight-words";
 import baseUrl from "../../utils/baseUrl";
 import axios from "axios";
 import Router from 'next/router';
+import Link from "next/link";
 
 const {Option} = Select;
 const {TextArea} = Input;
@@ -19,9 +34,8 @@ function index({tubewells, google, form, form: {getFieldDecorator, validateField
 
     const [searchText, setSearchText] = useState('');
     const searchInput = useRef(null);
-
-    const [modelVisible, setModelVisible] = useState(false);
-    const [model2Visible, setModel2Visible] = useState(false);
+    const [updateModelVisible, setUpdateModelVisible] = useState(false);
+    const [viewModelVisible, setViewModelVisible] = useState(false);
 
     const [tubewell, setTubewell] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -87,18 +101,9 @@ function index({tubewells, google, form, form: {getFieldDecorator, validateField
             const tw = tubewells[i];
             mydata.push({
                 key: tw.tubewell_id,
-                sub_div_id: tw.sub_div_id,
                 tubewell_name: tw.tubewell_name,
-                rock_type: tw.rock_type,
-                lat: tw.lat,
-                lng: tw.lng,
-                install_date: (moment(tw.install_date).isValid()) && moment(tw.install_date)  ,
-                elevation: tw.elevation,
                 status: tw.status_title,
-                is_office: tw.is_office === 1,
-                phone1: tw.phone1,
-                last_update_ts: tw.last_update_ts,
-                address: tw.address,
+                status_date_change: tw.status_date_change ? moment(tw.status_date_change).format('YYYY-MM-DD') : "N/A",
             })
         }
         setData(mydata)
@@ -108,9 +113,6 @@ function index({tubewells, google, form, form: {getFieldDecorator, validateField
             Object.keys(form.getFieldsValue()).forEach(key => {
                 const obj = {};
                 obj[key] = tubewell[key] || null;
-                if (key ==='is_office'){
-                    obj[key] = tubewell[key] || false;
-                }
                 form.setFieldsValue(obj);
             });
         }
@@ -122,34 +124,10 @@ function index({tubewells, google, form, form: {getFieldDecorator, validateField
             title: 'Name',
             dataIndex: 'tubewell_name',
             key: 'tubewell_name',
-            width: '20%',
             ...getColumnSearchProps('tubewell_name'),
-
-        },
-        {
-            ellipsis: true,
-            title: 'Rock Type',
-            dataIndex: 'rock_type',
-            key: 'rock_type',
-            width: '20%',
-            ...getColumnSearchProps('rock_type'),
-        },
-        {
-            ellipsis: true,
-            title: 'Install Date',
-            dataIndex: 'install_date',
-            key: 'install_date',
-            width: '20%',
-            render: (text, record) => (
-                <span>{(record.install_date) ? record.install_date.format('YYYY-MM-DD') : "Data not Available"}</span>
+            render: (text, r) => (
+                <span><Link href={`tubewells/${r.key}`} ><a>{r.tubewell_name}</a></Link></span>
             ),
-        },
-        {
-            ellipsis: true,
-            title: 'Elevation',
-            dataIndex: 'elevation',
-            key: 'elevation',
-            width: '20%'
         },
         {
             ellipsis: true,
@@ -157,27 +135,16 @@ function index({tubewells, google, form, form: {getFieldDecorator, validateField
             dataIndex: 'status',
             key: 'status',
             width: '20%',
-            ...getColumnSearchProps('status')
-        },
-        {
-            ellipsis: true,
-            title: 'Description',
-            dataIndex: 'Description',
-            key: 'Description',
-            render: (text, record) => (
-                <small>{record.Description}</small>
-            )
-        },
-        {
-            ellipsis: true,
-            title: '',
-            dataIndex: 'action',
-            key: 'action',
-            width: '10%',
+            ...getColumnSearchProps('status'),
 
-            render: (text, record) => (
-                <a>view</a>
-            ),
+        },
+        {
+            ellipsis: true,
+            title: 'Status date',
+            dataIndex: 'status_date_change',
+            key: 'status_date_change',
+            width: '12%',
+            ...getColumnSearchProps('status_date_change'),
         }
     ];
 
@@ -206,30 +173,30 @@ function index({tubewells, google, form, form: {getFieldDecorator, validateField
     }
 
     function handleCancel() {
-        setModelVisible(false)
+        setUpdateModelVisible(false)
     }
 
     return (<>
         <Button className='mb-3' style={{backgroundColor: '#0a8080', color: 'white'}} size={"large"}
-                onClick={() => setModelVisible(true)}>
+                onClick={() => setUpdateModelVisible(true)}>
             Add new Tubewell
         </Button>
         <Table className='p-2' style={{backgroundColor: "white"}} loading={loading}
                columns={columns} dataSource={data} scroll={{x: 1000}}
-               onRow={(record, rowIndex) => ({
+               /*onRow={(record, rowIndex) => ({
                        onClick: event => {
                            setTubewell(record);
-                           setModel2Visible(true)
+                           setViewModelVisible(true)
                        } // click row
                    }
-               )}
+               )}*/
         />
 
         {(tubewell) && <Modal destroyOnClose={true}
                               width={780}
-                              visible={modelVisible}
-                              onOk={() => setModelVisible(false)}
-                              onCancel={() => setModelVisible(false)}
+                              visible={updateModelVisible}
+                              onOk={() => setUpdateModelVisible(false)}
+                              onCancel={() => setUpdateModelVisible(false)}
                               footer={null}
                               closable={false}>
             <Card bordered={false}
@@ -266,7 +233,8 @@ function index({tubewells, google, form, form: {getFieldDecorator, validateField
                                             message: 'Please provide Install Date!'
                                         }]
                                     })(
-                                        <DatePicker size='large' format='YYYY-MM-DD' className='w-100' placeholder='11/02/2019'/>
+                                        <DatePicker size='large' format='YYYY-MM-DD' className='w-100'
+                                                    placeholder='11/02/2019'/>
                                     )}
                                 </FormItem>
                             </dd>
@@ -296,14 +264,7 @@ function index({tubewells, google, form, form: {getFieldDecorator, validateField
                                     )}
                                 </FormItem>
                             </dd>*/}
-                            <dt className="col-xl-3 p-4 font-weight-bold">Is Main office</dt>
-                            <dd className="col-xl-9 p-4 ">
-                                <FormItem>
-                                    {getFieldDecorator('is_office')(
-                                        <Checkbox size='large' className='w-100' defaultChecked={tubewell.is_office === 1}/>
-                                    )}
-                                </FormItem>
-                            </dd>
+
                             <dt className="col-xl-3 p-4 font-weight-bold">Phone</dt>
                             <dd className="col-xl-9 p-4 ">
                                 <FormItem>
@@ -356,6 +317,14 @@ function index({tubewells, google, form, form: {getFieldDecorator, validateField
                                     )}
                                 </FormItem>
                             </dd>
+                            <dt className="col-xl-3 p-4 font-weight-bold"/>
+                            <dd className="col-xl-9 p-4 ">
+                                <FormItem>
+                                    {getFieldDecorator('is_office', {valuePropName: 'checked'})(
+                                        <Checkbox>is Office</Checkbox>
+                                    )}
+                                </FormItem>
+                            </dd>
                         </div>
                         <Divider/>
                         <div className='flex-justify-content'>
@@ -371,9 +340,9 @@ function index({tubewells, google, form, form: {getFieldDecorator, validateField
 
         {(tubewell) && <Modal
             width={780}
-            visible={model2Visible}
-            onOk={() => setModel2Visible(false)}
-            onCancel={() => setModel2Visible(false)}
+            visible={viewModelVisible}
+            onOk={() => setViewModelVisible(false)}
+            onCancel={() => setViewModelVisible(false)}
             footer={null}
             closable={false}>
             <Card bordered={false}
@@ -399,18 +368,18 @@ function index({tubewells, google, form, form: {getFieldDecorator, validateField
                         <dt className="col-xl-3 p-3 font-weight-bold">Address:</dt>
                         <dd className="col-xl-9 p-3 ">{tubewell.address}</dd>
                         <dt className="col-xl-3 p-3 font-weight-bold">Lat and Lng:</dt>
-                        <dd className="col-xl-9 p-3 ">{tubewell.lat}  {tubewell.lng}</dd>
+                        <dd className="col-xl-9 p-3 ">{tubewell.lat} {tubewell.lng}</dd>
 
                     </dl>
                     <Divider/>
                     <div className={'flex-justify-content'}>
                         <Button size={"large"} className='mr-2'
                                 style={{backgroundColor: '#0a8080', color: 'white'}}
-                                onClick={() => setModel2Visible(false)}>Looks Good</Button>
+                                onClick={() => setViewModelVisible(false)}>Looks Good</Button>
                     </div>
 
                     <div className={'flex-justify-content'}>
-                        <Button onClick={() => setModelVisible(true)} size={"large"} type="link"
+                        <Button onClick={() => setUpdateModelVisible(true)} size={"large"} type="link"
                                 style={{color: '#234361'}}>Edit</Button>
                     </div>
 

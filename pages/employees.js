@@ -4,7 +4,7 @@ import baseUrl from "../utils/baseUrl";
 import axios from "axios";
 
 function Employees({employees}) {
-    return <div className='p-5' style={{minHeight: '100vh'}}>
+    return <div className='min-vh-100'>
          <EmployeeList employees={employees}/>
     </div>;
 }

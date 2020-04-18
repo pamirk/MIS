@@ -1,3 +1,32 @@
+.demo-infinite-container {
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    overflow: auto;
+    padding: 8px 24px;
+    height: 300px;
+}
+.edit-text {
+    background-color: #1c1c1c;
+    border-radius: 50%;
+    color: #fff;
+    content: 'edit';
+    cursor: pointer;
+    display: none;
+    /*
+    height: 100px;
+    left: 50%;
+    margin-left: -50px;
+    line-height: 105px;
+    */
+    opacity: 0.8;
+    /*position: absolute;
+    top: 0;
+    text-align: center;
+    width: 100px;*/
+}
+.header-avatar:hover .edit-text {
+    display: block;
+}
 .select-employee input {
     padding: 0;
 }

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, Card, Divider, Form, Icon, Input, message, Modal, Table, Upload} from "antd";
+import {Button, Card, Divider, Form, Icon, Input, message, Modal, Skeleton, Table, Upload} from "antd";
 import {Col, Row} from "reactstrap";
 import axios from "axios";
 import baseUrl from "../../../utils/baseUrl";
@@ -30,13 +30,10 @@ function EmployeeLeaves({id, ctx, form, user}) {
     return (
         <>
             <Card style={{minHeight: '100vh'}}>
-
                 <h1>Time Off</h1>
-                <Row>
-                    <Col>
-                        {(leaves) && <LeavesList user={user} leaves={leaves}/>}
-                    </Col>
-                </Row>
+                <Skeleton loading={loading} active>
+                    <LeavesList user={user} leaves={leaves}/>
+                </Skeleton>
             </Card>
         </>
     )
