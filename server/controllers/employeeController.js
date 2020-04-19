@@ -64,6 +64,24 @@ exports.upload = async (req, res) => {
             res.json({key: i.fileLink.key})
         });*/
 };
+exports.emailUpdate = async (req, res) => {
+    try {
+        const {email, employee_id} = req.body;
+        let q = `update employees set email = ? where employee_id = ? `;
+        const rows = await database.query(q, [email, employee_id]);
+        return res.json({status: 200});
+    } catch (e) {
+        console.error(error);
+        res.status(403).send("error in emailUpdate");
+    }
+
+
+    /*saveFile(file)
+        .then(i => {
+            console.log("value", i.fileLink.key);
+            res.json({key: i.fileLink.key})
+        });*/
+};
 exports.add_employee_role = async (req, res) => {
     try {
         const {r_id, authorizedBy, e_ids} = req.body;
@@ -365,8 +383,8 @@ exports.change_tubewell_status = async (req, res) => {
                 values (?,?,1,?,CURRENT_TIMESTAMP,? )`;
 
     try {
-        const  rows = await database.query(q,[tubewell_id]);
-        const  rows2 = await database.query(q2, [tubewell_id, status_title, status_description, change_by]);
+        const rows = await database.query(q, [tubewell_id]);
+        const rows2 = await database.query(q2, [tubewell_id, status_title, status_description, change_by]);
         return res.json({status: 200});
     } catch (err) {
         console.error(err);
@@ -1396,6 +1414,34 @@ exports.set_employee_password = async (req, res) => {
         res.status(403).send("se_employee_password error");
     }
 }
+exports.set_employee_password_by_employee = async (req, res) => {
+    try {
+        let q = `SELECT * from employee_login where employee_id = ?;`;
+
+        database.query(q, [req.body.id])
+            .then(rows => {
+                if (rows.length === 0) {
+                    return res.json({status: 500, message: "Contact Admin"});
+                } else {
+                    if (req.body.old_password !== rows[0].employee_password) {
+                        return res.json({status: 500, message: "incorrect Old Password"});
+                    }
+                    q = `update employee_login set employee_password = ? where employee_id = ?;`;
+                    database.query(q, [req.body.new_password, req.body.id])
+                        .then(rows => {
+                            res.json({status: 200,message:'Password updated'})
+                        })
+                }
+            }).catch(err => {
+            console.log(err);
+            return res.json({status: 500, err: err});
+        })
+
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("se_employee_password error");
+    }
+};
 
 exports.add_employee_address = async (req, res) => {
     try {

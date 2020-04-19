@@ -75,6 +75,8 @@ router.post("/update_role", employeeController.update_role);
 router.post("/role_delete", employeeController.role_delete);
 router.post("/employee_delete_from_role", employeeController.employee_delete_from_role);
 
+router.post("/emailUpdate", employeeController.emailUpdate);
+
 
 router.post("/create_training", employeeController.create_training);
 router.post("/add_employee_trainings", employeeController.add_employee_trainings);
@@ -128,6 +130,7 @@ router.post("/document_file", uploadX.single("image"), employeeController.docume
 router.get("/documents/:id", employeeController.documents);
 router.post("/update_employee_status", employeeController.update_employee_status);
 router.post("/set_employee_password", employeeController.set_employee_password);
+router.post("/set_employee_password_by_employee", employeeController.set_employee_password_by_employee);
 
 router.post("/create_employee_designation", uploadX.single("image"), employeeController.create_employee_designation);
 router.post("/employee_create_address", employeeController.employee_create_address);

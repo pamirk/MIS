@@ -30,7 +30,7 @@ export default function Personal({id, p_employee, p_address}) {
         setVisible_showEditAddressModal(false)
     };
     const handleCancel = e => {
-        setVisible_showEditBasicModal(false)
+        setVisible_showEditBasicModal(false);
         setVisible_showEditAddressModal(false)
     };
 

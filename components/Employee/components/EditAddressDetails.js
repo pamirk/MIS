@@ -6,6 +6,7 @@ import moment from "moment";
 import * as _ from "lodash";
 import baseUrl from "../../../utils/baseUrl";
 import axios from "axios";
+import {formItemLayout} from "../../Common/UI";
 
 const {TextArea} = Input;
 
@@ -57,17 +58,6 @@ function EditAddressDetails({itemkey, handleCancel, hideHandler, id, data, form}
                 }
             }
         });
-    };
-
-    const formItemLayout = {
-        labelCol: {
-            xs: {span: 24},
-            sm: {span: 8},
-        },
-        wrapperCol: {
-            xs: {span: 24},
-            sm: {span: 16},
-        },
     };
     const {getFieldDecorator} = form;
     return (

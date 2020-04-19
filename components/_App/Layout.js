@@ -21,7 +21,6 @@ function AppLayout({children, user}) {
     const menulinks = (authUser && authUser.is_admin === 0)
         ?
         <Menu theme="dark" mode="inline" defaultSelectedKeys={['100']}>
-
             <Menu.Item key="8">
                 <Link href="/register_complaint">
                     <a> <span>Add Complaint</span></a>
@@ -37,7 +36,13 @@ function AppLayout({children, user}) {
                     <a><span>Time Off</span></a>
                 </Link>
             </Menu.Item>
+            <Menu.Item key="14">
+                <Link href="/personaldetails">
+                    <a><span>Personal details</span></a>
+                </Link>
+            </Menu.Item>
         </Menu>
+
         :
         <Menu theme="dark" mode="inline" defaultSelectedKeys={['100']}>
             {/*<Menu.Item key="1">

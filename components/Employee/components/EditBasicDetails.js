@@ -65,13 +65,8 @@ function EditBasicDetails({handleCancel, hideHandler, id, data, form}) {
     return (
         <div className='p-5'>
             <Form layout='vertical' onSubmit={handlerSubmit} {...formItemLayout} >
-                <FormItem label="CNIC">{getFieldDecorator('cnic', {
-                    rules: [{
-                        required: true,
-                        message: "CNIC is required"
-                    }]
-                })
-                (<Input size='large' type='number' className='w-100' placeholder="CNIC"/>)}</FormItem>
+                <FormItem label="CNIC">{getFieldDecorator('cnic', {rules: [{required: true, message: "CNIC is required"}]})
+                (<Input size='large' type='text' className='w-100' placeholder="CNIC"/>)}</FormItem>
                 <FormItem label="Full Name">{getFieldDecorator('full_name', {
                     rules: [{
                         required: true,
