@@ -4,7 +4,7 @@ import PromoteDesignation from "./PromoteDesignation";
 import Highlighter from "react-highlight-words";
 
 import {Component} from "react";
-import baseUrl from "../../../utils/baseUrl";
+import baseUrl, {awsb} from "../../../utils/baseUrl";
 import Link from "next/link";
 import {useState} from "react";
 import {useRef} from "react";
@@ -185,7 +185,7 @@ export default function Promotion({designations, id, employee}) {
             render: (text, record) => (
                 <span>
                     <Link>
-                      <a onClick={() => handlePreview(baseUrl + `/${record.photo}`)}>
+                      <a onClick={() => handlePreview(awsb + `/${record.photo}`)}>
                           <Icon type="eye" theme="twoTone" title='View Order Letter photo' /></a>
                     </Link>
                 </span>
@@ -204,14 +204,10 @@ export default function Promotion({designations, id, employee}) {
                     <div className='mt-3'>
                         <Table columns={columns} dataSource={tabledata} pagination={false} scroll={{x: 1200}}/>
                     </div>
-                    <Modal
-                        width={780}
-                        visible={visible_showpromoteModal}
-                        onOk={handleOk}
-                        destroyOnClose={true}
-                        onCancel={handleCancel}
-                        footer={null}
-                        closable={false}>
+                    <Modal width={780}
+                        visible={visible_showpromoteModal} onOk={handleOk}
+                        destroyOnClose={true} onCancel={handleCancel}
+                        footer={null} closable={false}>
                         <Card bordered={false}
                               title={<strong className={'text-large font-weight-bold'}>Promote Employee</strong>}>
                             <PromotionComponent Indexkey={Indexkey} hideHandler={hideHandler} id={id} data={data} handleCancelProp={handleCancelProp}/>
@@ -220,10 +216,8 @@ export default function Promotion({designations, id, employee}) {
                     </Modal>
 
 
-                    <Modal
-                        visible={previewVisible}
-                        onCancel={() => setPreviewVisible(false)}
-                        footer={null}>
+                    <Modal visible={previewVisible}
+                        onCancel={() => setPreviewVisible(false)} footer={null}>
                         <img alt="example" style={{width: '100%'}} src={previewImage} />
                     </Modal>
                 </div>

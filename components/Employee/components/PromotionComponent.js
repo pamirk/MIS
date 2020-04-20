@@ -5,6 +5,7 @@ import {Button, DatePicker, Divider, Form, Input, message, Select} from 'antd';
 import axios from "axios";
 import catchErrors from "../../../utils/catchErrors";
 import {LEAVE_STATUS} from "../../../server/utils/status";
+import {formItemLayout} from "../../Common/UI";
 
 const {Option} = Select;
 const FormItem = Form.Item;
@@ -15,14 +16,17 @@ function PromoteDesignation({Indexkey, hideHandler, id, data, form, handleCancel
     const [image, setImage] = useState(null);
     const [divisions, setDivisions] = useState(null);
     const [designationsItems, setDesignationsItems] = useState(null);
-    const [selectedDepartemnt, setSelectedDepartemnt] = useState(null);
+    const [selectedDepartment, setSelectedDepartment] = useState(data[0]["department_name"] || null);
     const [departs, setDeparts] = useState(null);
 
     useEffect(() => {
         if (Indexkey) {
             setBaseInfo();
         }
+        form.setFieldsValue({department_name:selectedDepartment});
         getDepartmentList();
+        console.log('selectedDepartment',selectedDepartment);
+        getDesignationsList(data[0]["department_id"] || null);
     }, []);
 
     const setBaseInfo = () => {
@@ -38,11 +42,11 @@ function PromoteDesignation({Indexkey, hideHandler, id, data, form, handleCancel
         if (mydata) {
             Object.keys(form.getFieldsValue()).forEach(key => {
                 const obj = {};
-                // @ts-ignore
                 obj[key] = mydata[key] || null;
                 form.setFieldsValue(obj);
             });
         }
+
     };
     const handlerSubmit = (event) => {
         event.preventDefault();
@@ -107,34 +111,12 @@ function PromoteDesignation({Indexkey, hideHandler, id, data, form, handleCancel
             })
     };
 
-
     const onDepartmentMenuChange = (value) => {
-        setSelectedDepartemnt(value);
+        setSelectedDepartment(value);
+        console.log('value', value);
         getDesignationsList(value);
     };
-    const formItemLayout = {
-        labelCol: {
-            xs: {span: 24},
-            sm: {span: 8},
-        },
-        wrapperCol: {
-            xs: {span: 24},
-            sm: {span: 16},
-        },
-    };
 
-    const tailFormItemLayout = {
-        wrapperCol: {
-            xs: {
-                span: 24,
-                offset: 0,
-            },
-            sm: {
-                span: 16,
-                offset: 8,
-            },
-        },
-    };
     const onImageDataChange = (e) => {
         let files = e.target.files;
         if (files && files[0]) {

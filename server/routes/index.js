@@ -64,6 +64,7 @@ const noneAvatar = multer(avatarUploadOptions).none();
     next();
 };*/
 
+router.get("/employee_events/:id", employeeController.employee_events);
 router.get("/roles/:id", employeeController.roles);
 router.get("/employees_in_role/:id", employeeController.employees_in_role);
 router.get("/role_details/:id", employeeController.role_details);

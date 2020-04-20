@@ -47,6 +47,18 @@ async function saveFile(file) {
     });
 }
 
+function generateEvent(e_id, ev_id) {
+    try {
+        const q = `insert into employees_events(employee_id, ev_id) values ( ?, ?)`;
+        database.query(q, [e_id, ev_id])
+            .then(rows => {
+                console.log("employees_events generated")
+            })
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 exports.upload = async (req, res) => {
     const file = req.file;
     try {
@@ -64,23 +76,30 @@ exports.upload = async (req, res) => {
             res.json({key: i.fileLink.key})
         });*/
 };
+exports.employee_events = async (req, res) => {
+    try {
+        let q = `select ee.id ee_id, ee.ts ts, e.*
+                    from employees_events ee
+                    left join events e on ee.ev_id = e.id
+                    where employee_id = ?;`;
+        const rows = await database.query(q, [req.params.id]);
+        return res.json({status: 200,rows});
+    } catch (e) {
+        console.error(e);
+        res.status(403).send("error in employee_events");
+    }
+};
 exports.emailUpdate = async (req, res) => {
     try {
         const {email, employee_id} = req.body;
+        generateEvent(employee_id, 1);
         let q = `update employees set email = ? where employee_id = ? `;
         const rows = await database.query(q, [email, employee_id]);
         return res.json({status: 200});
     } catch (e) {
-        console.error(error);
+        console.error(e);
         res.status(403).send("error in emailUpdate");
     }
-
-
-    /*saveFile(file)
-        .then(i => {
-            console.log("value", i.fileLink.key);
-            res.json({key: i.fileLink.key})
-        });*/
 };
 exports.add_employee_role = async (req, res) => {
     try {
@@ -1185,21 +1204,22 @@ exports.postConsumerAttachment = async (req, res) => {
 exports.employee_designation_details = async (req, res) => {
     try {
         const q = `SELECT emp_des.emp_des_id,
-                          emp_des.order_date         AS emp_des_order_date,
-                          emp_des.appointment_date   AS emp_des_appointment_date,
-                          emp_des.order_letter_photo AS emp_des_order_letter_photo,
-                          emp_des.is_active          AS emp_des_is_active,
-                          des.des_title,
-                          des.des_id,
-                          des.des_scale,
-                          depart.department_name,
-                          depart.department_description,
-                          depart.department_city_name
-                   FROM employees_designations AS emp_des
-                            INNER JOIN designations AS des ON emp_des.des_id = des.des_id
-                            INNER JOIN department AS depart ON des.department_id = depart.department_id
-                   where emp_des.employee_id = ?
-                   order by emp_des.is_active DESC, emp_des.appointment_date DESC;`;
+                   emp_des.order_date         AS emp_des_order_date,
+                   emp_des.appointment_date   AS emp_des_appointment_date,
+                   emp_des.order_letter_photo AS emp_des_order_letter_photo,
+                   emp_des.is_active          AS emp_des_is_active,
+                   des.des_title,
+                   des.des_id,
+                   des.des_scale,
+                   depart.department_id,
+                   depart.department_name,
+                   depart.department_description,
+                   depart.department_city_name
+            FROM employees_designations AS emp_des
+                     INNER JOIN designations AS des ON emp_des.des_id = des.des_id
+                     INNER JOIN department AS depart ON des.department_id = depart.department_id
+            where emp_des.employee_id = ?
+            order by emp_des.is_active DESC, emp_des.appointment_date DESC;`;
 
         database.query(q, [req.params.id])
             .then(rows => res.json(rows))
@@ -1292,9 +1312,10 @@ exports.upload_profile_image = async (req, res) => {
 };
 exports.documents = async (req, res) => {
     try {
-        const q = `SELECT *
-                   from documents
-                   where employee_id = ?`;
+        const q = `SELECT documents.*, e.full_name enterby_name
+                    from documents
+                    left join employees e on documents.enterby_id = e.employee_id
+                    where documents.employee_id = 14;`;
         database.query(q, [req.params.id])
             .then(rows => res.json({status: 200, rows}))
             .catch(error => res.json({status: 500, err: error.sqlMessage}));
@@ -1429,7 +1450,7 @@ exports.set_employee_password_by_employee = async (req, res) => {
                     q = `update employee_login set employee_password = ? where employee_id = ?;`;
                     database.query(q, [req.body.new_password, req.body.id])
                         .then(rows => {
-                            res.json({status: 200,message:'Password updated'})
+                            res.json({status: 200, message: 'Password updated'})
                         })
                 }
             }).catch(err => {

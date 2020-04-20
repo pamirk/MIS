@@ -127,7 +127,7 @@ function AppLayout({children, user}) {
                 <link rel="stylesheet" type="text/css" href="/static/base.css"/>
                 <link rel="stylesheet" type="text/css" href="/static/nprogress.css"/>
 
-                <title>QMC</title>
+                <title>QWASA</title>
             </Head>
             <Layout>
                 <Sider hidden={!authUser}
@@ -137,7 +137,7 @@ function AppLayout({children, user}) {
                        collapsedWidth="0"
                        onBreakpoint={broken => setCollapsed(true)}>
                     <div className="header--logo">
-                        <Link href="/"><strong className='logo-text'>QMC</strong></Link></div>
+                        <Link href="/"><strong className='logo-text'>QWASA</strong></Link></div>
                     {menulinks}
                 </Sider>
                 <Layout>

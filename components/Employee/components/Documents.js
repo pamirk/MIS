@@ -61,7 +61,6 @@ function Documents({id, employee, user, form}) {
             title: 'Document',
             dataIndex: 'document_name',
             key: 'document_name',
-            width: '33%',
             render: (text, record) => (
                 <span><a style={{
                     color: ' #0a8080',
@@ -71,12 +70,22 @@ function Documents({id, employee, user, form}) {
         },
         {
             ellipsis: true,
-            title: 'Status',
+            title: 'Uploaded on',
             dataIndex: 'last_update_ts',
             key: 'last_update_ts',
-            width: '33%',
+            width: '15%',
             render: (text, record) => (
-                <span>Uploaded on {moment(record.last_update_ts).format("MMM Do YYYY")}</span>
+                <span>{moment(record.last_update_ts).format("MMM Do YYYY")}</span>
+            )
+        },
+        {
+            ellipsis: true,
+            title: 'Uploaded By',
+            dataIndex: 'enterby_name',
+            key: 'enterby_name',
+            width: '15%',
+            render: (text, record) => (
+                <Link href={`/employee/${record.enterby_id}`} ><a target='_blank'>{record.enterby_name}</a></Link>
             )
         },
         {
@@ -84,7 +93,7 @@ function Documents({id, employee, user, form}) {
             title: 'Actions',
             dataIndex: 'actions',
             key: 'actions',
-            width: '5%',
+            width: '10%',
             render: (text, record) => (
                 <span><a style={{color: ' #0a8080', transition: 'color 125ms ease-in-out'}}
                          target='_blank' href={awsb + '/' + record.document_link}>
@@ -143,7 +152,7 @@ function Documents({id, employee, user, form}) {
             <Row>
                 <Col>
                     <Table style={{backgroundColor: "white"}} loading={loading}
-                           columns={columns} dataSource={docs} scroll={{x: 800}}/>
+                           columns={columns} dataSource={docs} scroll={{x: 1000}}/>
                 </Col>
             </Row>
             <Modal

@@ -3,6 +3,7 @@ import {Avatar, Button, Divider, Icon, Input, Table, List} from 'antd';
 import Highlighter from 'react-highlight-words';
 import Link from "next/link";
 import { useRouter } from 'next/router'
+import {awsb} from "../../utils/baseUrl";
 
 let placeholderAvatarURL = './../../static/placeholderAvatar.svg';
 
@@ -86,13 +87,7 @@ export default function EmployeeTable({data}) {
     };
 
     const columns = [
-        {
-            title: 'Form #',
-            dataIndex: 'form_number',
-            key: 'form_number',
-            width: '12%',
-            ...getColumnSearchProps('form_number'),
-        },
+
         {
             title: 'Name',
             dataIndex: 'full_name',
@@ -100,7 +95,7 @@ export default function EmployeeTable({data}) {
             ...getColumnSearchProps('full_name'),
             render: (text, record) => (
                 <List.Item className='p-0'>
-                    <List.Item.Meta avatar={<Avatar size='default' src={record.employee_photo || placeholderAvatarURL}/>}
+                    <List.Item.Meta avatar={<Avatar size='default' src={record.employee_photo ? awsb + '/' + record.employee_photo : placeholderAvatarURL}/>}
                         title={<Link href={`employee/${record.key}`} ><a>{record.full_name}</a></Link>}/>
                 </List.Item>
             ),
@@ -110,6 +105,13 @@ export default function EmployeeTable({data}) {
             dataIndex: 'father_name',
             key: 'father_name',
             ...getColumnSearchProps('father_name'),
+        },
+        {
+            title: 'Form #',
+            dataIndex: 'form_number',
+            key: 'form_number',
+            width: '12%',
+            ...getColumnSearchProps('form_number'),
         },
         {
             title: 'Job title',

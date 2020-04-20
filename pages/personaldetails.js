@@ -1,8 +1,7 @@
 import React from "react";
-import PersonalDetails from "../components/Employee/components/PersonalDetails";
+import PersonalDetails from "../components/PersonalDetails/PersonalDetails";
 
 function Details({user}) {
-
     return (
        <PersonalDetails user={user}/>
     );
