@@ -5,7 +5,7 @@ export default function List18({categoryData}) {
     return (
         <Row>
             {categoryData && categoryData.map(i =>
-                <Col >
+                <Col key={i.category}>
                     <div>
                         <div style={{padding: '17px 0 17px 25px'}}>
                         <span style={{

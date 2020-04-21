@@ -99,9 +99,9 @@ function ChartCard({type, title, values, labels, colors, gradient}) {
                         series={(type === 'radialBar') ? series2 : series}
                         type={type}
                         height={290}/>
-                    < List flush>
+                    <List>
                         {labels.map((label, index) => (
-                            <List.Item className="d-flex justify-content-between">
+                            <List.Item key={index} className="d-flex justify-content-between">
                                 <div className="item-info">
                                     <div style={{
                                         background: colors[index],

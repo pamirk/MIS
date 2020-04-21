@@ -39,7 +39,6 @@ function Documents({id, employee, user, form}) {
         const fetchData = async () => {
             setLoading(true);
             const {documents} = await getDocuments();
-            console.log(documents);
             setDocs(formatData(documents));
             setLoading(false)
         }
@@ -105,7 +104,6 @@ function Documents({id, employee, user, form}) {
         event.preventDefault();
         form.validateFields(async (err, values) => {
             if (!err) {
-                console.log("values", values);
                 const fd = new FormData();
                 fd.append('image', fileList[0], fileList[0].name);
                 fd.append('document_name', values.Document_Name);
@@ -115,7 +113,6 @@ function Documents({id, employee, user, form}) {
                 setUploading(true)
                 axios.post(baseUrl + '/api/document_file', fd)
                     .then(d => {
-                        console.log("d.data", d.data);
                         if (d.data.status !== 200) {
                             message.error("Error Uploading image", 3);
                         } else {

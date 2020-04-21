@@ -66,13 +66,10 @@ export default function Address({handleCancel, id, address_data, type}) {
             dataIndex: 'actions',
             render: (text, record) => (
                 <span>
-                        <Link>
-                          <a onClick={() => {
-                              console.log(record.key);
-                              setItemkey(record.key)
-                              setShowEditAddressModal(true)
-                          }}>Edit</a>
-                      </Link>
+                    <a onClick={() => {
+                            setItemkey(record.key)
+                            setShowEditAddressModal(true)
+                        }}>Edit</a>
                     </span>
             ),
 
@@ -150,7 +147,8 @@ export default function Address({handleCancel, id, address_data, type}) {
                             <p>This information is used for all HR related tasks, so please make sure it’s
                                 accurate.</p>
                             {(data) &&
-                            <AddAddressDetails type={type} hideHandler={addAddressHideHandler} id={id} handleCancel={addAddressHandleCancel} />
+                            <AddAddressDetails type={type} hideHandler={addAddressHideHandler} id={id}
+                                               handleCancel={addAddressHandleCancel}/>
                             }
                         </Card>
                     </Modal>

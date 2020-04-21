@@ -9,7 +9,6 @@ import Head from "next/head";
 import EditDesignationDetails from "./EditDesignationDetails";
 import moment from "moment";
 import {cardTitleIcon} from "../../Common/UI";
-import Link from "next/link";
 import AddDesignationDetails from "./AddDesignationDetails";
 import {useEmployeeState} from "../useEmployeeState";
 import {VIEW__EMPLOYMENT_DETAILS, EDIT__EMPLOYMENT_DETAILS} from "../../../utils/role_constants";
@@ -24,7 +23,7 @@ export default function Job({id, employee, address, designations}) {
     const [addDesignationModalVisible, setAddDesignationModalVisible] = useState(false);
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
-    const [{ count, roles }, dispatch] = useEmployeeState();
+    const [{count, roles}, dispatch] = useEmployeeState();
     const [rolesInts, setRolesInts] = useState([]);
     const handlePreview = async file => {
         setPreviewImage(file);
@@ -113,18 +112,15 @@ export default function Job({id, employee, address, designations}) {
                                 <div className="d-flex user-info">
                                     <div className="user-info-title font-weight-bold">Order Copy</div>
                                     <div className="text-truncate">
-                                        <span>
-                                            <Link>
-                                              <a onClick={() => handlePreview(awsb + `/${des_data.emp_des_order_letter_photo}`)}>
-                                                  <Icon type="eye" theme="twoTone" title='View Order Letter photo'/></a>
-                                            </Link>
+                                        <span><Icon type="eye" theme="twoTone" title='View Order Letter photo'
+                                                    onClick={() => handlePreview(awsb + `/${des_data.emp_des_order_letter_photo}`)}/>
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </Card>
                         : <Card bordered={false}
-                                title={cardTitleIcon('Add Employment Details', "plus",rolesInts.includes(VIEW__EMPLOYMENT_DETAILS) && rolesInts.includes(EDIT__EMPLOYMENT_DETAILS) &&  showAddDesignationModal)}>
+                                title={cardTitleIcon('Add Employment Details', "plus", rolesInts.includes(VIEW__EMPLOYMENT_DETAILS) && rolesInts.includes(EDIT__EMPLOYMENT_DETAILS) && showAddDesignationModal)}>
                         </Card>
                     }
 
@@ -190,7 +186,7 @@ export default function Job({id, employee, address, designations}) {
                     closable={false}>
                     <Card bordered={false}
                           title={<strong className={'text-large font-weight-bold'}>Add Employment Details</strong>}>
-                        <AddDesignationDetails handleOk={handleOk} hideHandler={hideHandler} id={id} />
+                        <AddDesignationDetails handleOk={handleOk} hideHandler={hideHandler} id={id}/>
                     </Card>
                 </Modal>
 
@@ -220,7 +216,7 @@ export default function Job({id, employee, address, designations}) {
                 onCancel={() => setPreviewVisible(false)}
                 footer={null}>
                 <Card bordered={false}
-                    title={<strong className={'text-large font-weight-bold'}>Photo of Designation Order</strong>}>
+                      title={<strong className={'text-large font-weight-bold'}>Photo of Designation Order</strong>}>
                     <img alt="example" style={{width: '100%'}} src={previewImage}/>
                     <div className='mt-3 flex-justify-content'>
                         <Button onClick={() => setPreviewVisible(false)} size={"large"}>Looks Good</Button>

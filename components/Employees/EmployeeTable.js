@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {Avatar, Button, Divider, Icon, Input, Table, List} from 'antd';
 import Highlighter from 'react-highlight-words';
 import Link from "next/link";
-import { useRouter } from 'next/router'
+import {useRouter} from 'next/router'
 import {awsb} from "../../utils/baseUrl";
 
 let placeholderAvatarURL = './../../static/placeholderAvatar.svg';
@@ -27,8 +27,6 @@ export default function EmployeeTable({data}) {
         }
         setTableData(myData)
     }, []);
-
-
     const getColumnSearchProps = dataIndex => ({
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
@@ -75,19 +73,15 @@ export default function EmployeeTable({data}) {
             />
         ),
     });
-
     const handleSearch = (selectedKeys, confirm) => {
         confirm();
         setSearchText(selectedKeys[0])
     };
-
     const handleReset = clearFilters => {
         clearFilters();
         setSearchText('')
     };
-
     const columns = [
-
         {
             title: 'Name',
             dataIndex: 'full_name',
@@ -95,8 +89,9 @@ export default function EmployeeTable({data}) {
             ...getColumnSearchProps('full_name'),
             render: (text, record) => (
                 <List.Item className='p-0'>
-                    <List.Item.Meta avatar={<Avatar size='default' src={record.employee_photo ? awsb + '/' + record.employee_photo : placeholderAvatarURL}/>}
-                        title={<Link href={`employee/${record.key}`} ><a>{record.full_name}</a></Link>}/>
+                    <List.Item.Meta avatar={<Avatar size='default'
+                                                    src={record.employee_photo ? awsb + '/' + record.employee_photo : placeholderAvatarURL}/>}
+                                    title={<Link href={`employee/${record.key}`}><a>{record.full_name}</a></Link>}/>
                 </List.Item>
             ),
         },
@@ -126,24 +121,21 @@ export default function EmployeeTable({data}) {
             key: 'action',
             render: (text, record) => (
                 <span>
-                       <Link href={`employee/${record.key}`}>
-                          <a>View</a>
-                      </Link>
-
-                      <Divider type="vertical"/>
-                      <Link href={`employee_report/${record.key}`}>
-                          <a>Report</a>
-                      </Link>
-
+                  <Link href={`employee/${record.key}`}>
+                      <a>View</a>
+                  </Link>
+                  <Divider type="vertical"/>
+                  <Link href={`employee_report/${record.key}`}>
+                      <a>Report</a>
+                  </Link>
                 </span>
             )
         }
 
     ];
-
     return (
         <>
-            <Table size={"default"} columns={columns} dataSource={tableData} scroll={{x: 1000}} onRowClick={record => null /*router.push(`/employee/${record.key}`)*/}/>
+            <Table size={"default"} columns={columns} dataSource={tableData} scroll={{x: 1000}}/>
         </>
     );
 }

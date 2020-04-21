@@ -35,7 +35,7 @@ function RolesForm({form, handlerSubmit, data}) {
         let myMap = new Map();
         rows.forEach(value => {
             if (myMap.get(value.type)) {
-                myMap.set(value.type, [...myMap.get(value.type), {name: value.name, id: value.id}])
+                myMap.set(value.type,  [...myMap.get(value.type), {name: value.name, id: value.id, key: value.id}])
             } else {
                 myMap.set(value.type, [{name: value.name, id: value.id}])
             }
@@ -45,9 +45,9 @@ function RolesForm({form, handlerSubmit, data}) {
     const permissionsList = () => {
         const list = [];
         permissions.forEach((value, index) => {
-                list.push(<h3 className='font-weight-bold text-capitalize'>{index}</h3>);
+                list.push(<h3 key={index} className='font-weight-bold text-capitalize'>{index}</h3>);
                 value.map(v => {
-                        list.push(<Row>
+                        list.push(<Row key={v.id}>
                             <Col span={8} push={2}>
                                 <Checkbox value={v.id}>{v.name}</Checkbox>
                             </Col>

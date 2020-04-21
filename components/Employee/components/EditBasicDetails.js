@@ -39,7 +39,11 @@ function EditBasicDetails({handleCancel, hideHandler, id, data, form}) {
     const handlerSubmit = (event) => {
         event.preventDefault();
         form.validateFields(async (err, values) => {
-            if (!err && !_.isEqual(values, fieldsValue)) {
+            if (!err) {
+                if (_.isEqual(values, fieldsValue)){
+                    message.info("nothing to Update")
+                    return
+                }
                 try {
                     setLoading(true);
                     const url = `${baseUrl}/api/one_employee_update`;

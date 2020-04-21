@@ -38,17 +38,18 @@ function EditAddressDetails({itemkey, handleCancel, hideHandler, id, data, form}
     const handlerSubmit = (event) => {
         event.preventDefault();
         form.validateFields(async (err, values) => {
-            if (!err && !_.isEqual(values, fieldsValue)) {
+            if (!err) {
+                if (_.isEqual(values, fieldsValue)) {
+                    message.info("Nothing to update")
+                    return
+                }
                 try {
                     setLoading(true);
                     const url = `${baseUrl}/api/employee_address_update`;
                     const payload = {...values, employee_id: id, address_id: itemkey};
-                    console.log(payload);
-
                     const response = await axios.post(url, payload);
 
                     if (response.data.status === 200) {
-                        console.log(response.data.row)
                         hideHandler()
                     }
                 } catch (error) {

@@ -137,6 +137,7 @@ router.post("/create_employee_designation", uploadX.single("image"), employeeCon
 router.post("/employee_create_address", employeeController.employee_create_address);
 router.post("/add_employee_address", employeeController.add_employee_address);
 router.post("/create_division", employeeController.create_division);
+router.post("/create_sub_division", employeeController.create_sub_division);
 router.post("/create_department", employeeController.createDepartment);
 router.post("/create_designation", employeeController.createDesignation);
 router.post("/promote_emoployee", uploadX.single("image"), employeeController.promote_emoployee);

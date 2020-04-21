@@ -1,15 +1,9 @@
 import * as React from 'react';
-import {Badge, Button, Card, Col, Icon, Input, Modal, Table} from "antd";
-import PromoteDesignation from "./PromoteDesignation";
+import {useEffect, useRef, useState} from 'react';
+import {Badge, Button, Card, Icon, Input, Modal, Table} from "antd";
 import Highlighter from "react-highlight-words";
-
-import {Component} from "react";
 import baseUrl, {awsb} from "../../../utils/baseUrl";
 import Link from "next/link";
-import {useState} from "react";
-import {useRef} from "react";
-import {useEffect} from "react";
-import {LEAVE_STATUS} from "../../../server/utils/status";
 import PromotionComponent from "./PromotionComponent";
 
 export default function Promotion({designations, id, employee}) {
@@ -17,9 +11,9 @@ export default function Promotion({designations, id, employee}) {
     const [visible_showpromoteModal, setVisible_showpromoteModal] = useState(false);
     const [tabledata, setTabledata] = useState(null);
     const [data, setData] = useState(designations);
-    const [searchText, setSearchText] = useState(false);
+    const [searchText, setSearchText] = useState('');
     const [Indexkey, setIndexkey] = useState(0);
-    const searchInput = useRef(null);
+    const searchInput = useRef();
 
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState('');

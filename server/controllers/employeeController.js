@@ -1,9 +1,9 @@
+const saveFile = require("../utils/saveFile");
 const Database = require("../utils/PoolDatabase");
 const mysql = require("mysql");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
-const AWS = require("aws-sdk");
 
 const jet_secret = "d,f.1`!@f#$&*()@dnkfndf";
 
@@ -26,26 +26,6 @@ Access Key ID: AKIAVVKH7VVUCRR2SRNS
 Secret Access Key: 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
 Public URL: https://bucketeer-c655f294-62a1-4abb-a015-7b4331d63cdd.s3.amazonaws.com/public/
 */
-async function saveFile(file) {
-    let s3 = new AWS.S3({
-        accessKeyId: "AKIAVVKH7VVUCRR2SRNS",
-        secretAccessKey: "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",
-        region: "us-east-1"
-    });
-    let params = {
-        Bucket: "bucketeer-c655f294-62a1-4abb-a015-7b4331d63cdd", // BUCKETEER_BUCKET_NAME
-        Key: Date.now() + Math.random() + '-' + file.originalname,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-        ACL: "public-read"
-    };
-    return new Promise((resolve, reject) => {
-        s3.upload(params, function (err, data) {
-            if (err) return reject(err);
-            resolve({fileLink: data});
-        });
-    });
-}
 
 function generateEvent(e_id, ev_id) {
     try {
@@ -83,7 +63,7 @@ exports.employee_events = async (req, res) => {
                     left join events e on ee.ev_id = e.id
                     where employee_id = ?;`;
         const rows = await database.query(q, [req.params.id]);
-        return res.json({status: 200,rows});
+        return res.json({status: 200, rows});
     } catch (e) {
         console.error(e);
         res.status(403).send("error in employee_events");
@@ -874,9 +854,8 @@ exports.login = async (req, res) => {
                         const authenticated = (employee_login.employee_password === req.body.password);
                         if (authenticated) {
                             const token = jwt.sign({employee_id: user.employee_id, account_number: null}, jet_secret, {
-                                expiresIn: "7d"
+                                expiresIn: "2 days"
                             });
-                            console.log("authenticated", token);
                             res.status(200).json(token);
                         } else {
                             console.log("Passwords do not match");
@@ -914,10 +893,8 @@ exports.user_login = async (req, res) => {
                     const token = jwt.sign({employee_id: null, account_number: user.account_number}, jet_secret, {
                         expiresIn: "7d"
                     });
-                    console.log("authenticated", token);
                     res.status(200).json(token);
                 } else {
-                    console.log("Passwords do not match");
                     res.status(401).send("Passwords do not match");
                 }
             })
@@ -953,9 +930,7 @@ exports.account = async (req, res) => {
                                          from employees
                                          where employee_id = ?;`;
                         database.query(q2, [employee_login.employee_id])
-                            .then(rows => {
-                                res.status(200).json({employee: rows[0], employeeLogin: employee_login});
-                            })
+                            .then(rows => res.status(200).json({employee: rows[0], employeeLogin: employee_login}))
                             .catch(error => {
                                 console.error(error);
                                 res.status(500).send("Error account");
@@ -971,9 +946,7 @@ exports.account = async (req, res) => {
                             from user_registration_table
                             where account_number = ?;`;
             database.query(q, [account_number])
-                .then(rows => {
-                    res.status(200).json({user: rows[0], employee: null, employeeLogin: null});
-                })
+                .then(rows => res.status(200).json({user: rows[0], employee: null, employeeLogin: null}))
                 .catch(error => {
                     console.error(error);
                     return res.status(404).send("No user exists with that Account Number");
@@ -986,6 +959,7 @@ exports.account = async (req, res) => {
 
 
 exports.index = async (req, res) => {
+    console.log()
     return res.json({status: 200})
 };
 
@@ -1027,10 +1001,8 @@ exports.reporting_complains = async (req, res) => {
                                                                       is_public, is_current)
                                  values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                         database.query(querySting, Values)
-                            .then(rows => {
-                                console.log("201");
-                                return res.json({status: 201});
-                            }).catch(err => {
+                            .then(rows => res.json({status: 201}))
+                            .catch(err => {
                             console.log(err);
                             return res.json({status: 400, err: err});
                         })
@@ -1074,10 +1046,8 @@ exports.create_consumer = async (req, res) => {
 
         const querySting = "insert into user_registration_table(account_number, user_cnic, user_name, user_email, user_password, user_address, user_contact, user_cnic_front_image, user_cnic_back_image, user_wasa_bill_image) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         database.query(querySting, Values)
-            .then(rows => {
-                console.log("201");
-                return res.json({status: 201});
-            }).catch(err => {
+            .then(rows => res.json({status: 201}))
+            .catch(err => {
             console.log(err);
             return res.json({status: 500, err: err});
         })
@@ -1126,10 +1096,8 @@ exports.complain_register = async (req, res) => {
         console.log(Values);
         const q = "insert into consumer_complains_table(complain_id, account_number, complain_body, complain_status) values (?, ?, ?, ?);";
         database.query(q.Values)
-            .then(rows => {
-                console.log("200");
-                res.json({status: 200})
-            }).catch(err => {
+            .then(rows => res.json({status: 200}))
+            .catch(err => {
             console.log(err);
             return res.json({status: 500, err: err});
         })
@@ -1150,8 +1118,6 @@ exports.reporting_attachment = async (req, res) => {
                     i.fileLink.key,
                     req.body.attachment_file_type
                 ];
-
-                console.log(Values);
                 const querySting =
                         `insert into reporting_attachments( reporting_attachments_id, complains_reporting_id
                                                   , reporting_attachment_name
@@ -1159,10 +1125,8 @@ exports.reporting_attachment = async (req, res) => {
                  values (?, ?, ?, ?);`;
 
                 database.query(querySting, Values)
-                    .then(rows => {
-                        console.log("200");
-                        res.json({status: 200})
-                    }).catch(err => {
+                    .then(rows => res.json({status: 200}))
+                    .catch(err => {
                     console.log(err);
                     return res.json({status: 500, err: err});
                 })
@@ -1187,10 +1151,8 @@ exports.postConsumerAttachment = async (req, res) => {
                 const querySting = `insert into consumer_attachment(attachment_id, complain_id, attachment_name, attachment_file_type)
                             values (?, ?, ?, ?);`;
                 database.query(querySting, Values)
-                    .then(rows => {
-                        console.log("200");
-                        res.json({status: 200})
-                    }).catch(err => {
+                    .then(rows => res.json({status: 200}))
+                    .catch(err => {
                     console.log(err);
                     return res.json({status: 500, err: err});
                 })
@@ -1239,11 +1201,8 @@ exports.training_list = async (req, res) => {
         console.log(req.params.id);
         const querySting = `SELECT * from employees_trainings where employee_id = ${req.params.id} order by train_start_date DESC ;`;
         database.query(querySting)
-            .then(rows => {
-                console.log(" inside training_list");
-                console.log(rows);
-                res.json(rows)
-            }).catch(err => {
+            .then(rows => res.json(rows))
+            .catch(err => {
             console.log(err);
             return res.json({status: 500, err: err});
         })
@@ -1255,7 +1214,6 @@ exports.training_list = async (req, res) => {
 };
 exports.employee_transfer_details = async (req, res) => {
     try {
-        console.log(req.params.id);
         const q = `SELECT ts.* , t.tubewell_name as Tubewell, sd.sub_div_name as Sub_Division, d.div_title as Division
                 from transfers ts
                 inner join tubewells t on ts.tubewell_id = t.tubewell_id
@@ -1264,11 +1222,8 @@ exports.employee_transfer_details = async (req, res) => {
                 where employee_id = ${req.params.id}
                 order by is_active DESC`;
         database.query(q)
-            .then(rows => {
-                console.log(" inside training_list");
-                console.log(rows);
-                res.json(rows)
-            }).catch(err => {
+            .then(rows => res.json(rows))
+            .catch(err => {
             console.log(err);
             return res.json({status: 500, err: err});
         })
@@ -1285,9 +1240,8 @@ exports.get_employee_status = async (req, res) => {
                             from employee_login
                             where employee_id = ?;`;
         database.query(q, [req.params.id])
-            .then(rows => {
-                res.json({status: 200, rows: rows[0]})
-            }).catch(err => {
+            .then(rows => res.json({status: 200, rows: rows[0]}))
+            .catch(err => {
             console.log(err);
             return res.json({status: 500, err: err});
         })
@@ -1384,10 +1338,7 @@ exports.update_employee_status = async (req, res) => {
                 if (rows.length === 0) {
                     q = `insert into employee_login(employee_id, employee_is_active, is_admin, employee_password) values (?,?,?,?);`;
                     database.query(q, [req.body.id, req.body.employee_is_active, req.body.is_admin, '123'])
-                        .then(rows => {
-                            console.log(200, rows);
-                            res.json({status: 200, rows})
-                        })
+                        .then(rows => res.json({status: 200, rows}))
                 } else {
                     q = `update  employee_login set 
                         employee_is_active = ? ,
@@ -1395,10 +1346,7 @@ exports.update_employee_status = async (req, res) => {
                         last_update_ts = current_timestamp
                         where employee_id = ?;`;
                     database.query(q, [req.body.employee_is_active, req.body.is_admin, req.body.id])
-                        .then(rows => {
-                            console.log(200, rows);
-                            res.json({status: 200, rows})
-                        })
+                        .then(rows => res.json({status: 200, rows}))
                 }
             }).catch(err => {
             console.log(err);
@@ -1510,19 +1458,15 @@ exports.employee_create_address = async (req, res) => {
             req.body.employee_id,
             1
         ];
-        console.log(addressvalues);
-        //employee_id, current_address, permanent_address, postal_code, phone_number, phone_number2, city_id
         const queryAddress = `insert into addresses(current_address, permanent_address, postal_code, phone_number,
                                                     phone_number2, employee_id, city_id)
                               values (?, ?, ?, ?, ?, ?, ?);`;
         database.query(queryAddress, addressvalues)
-            .then(rows => {
-                console.log(rows[0]);
-                res.json({status: 200, row: rows[0]})
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
+            .then(rows => res.json({status: 200, row: rows[0]}))
+            .catch(err => {
+                console.log(err);
+                return res.json({status: 500, err: err});
+            })
     } catch (error) {
         console.error(error);
         res.status(403).send("employee_create_address error");
@@ -1554,40 +1498,45 @@ exports.show_one_employee_address = async (req, res) => {
 };
 exports.createDepartment = async (req, res) => {
     try {
-        const department = req.body.department;
-        const departmentValues = [department.department_name, department.department_description, department.department_city_name];
-        const querySting = "insert into department(department_name, department_description, department_city_name) values (?, ?, ?);";
-        database.query(querySting, departmentValues)
-            .then(rows => {
-                console.log(rows);
-                res.json(rows)
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
+        const {department_name, department_description, department_city_name} = req.body;
+        const querySting = `insert into department(department_name, department_description, department_city_name) values (?, ?, ?);`;
+        database.query(querySting, [department_name, department_description, department_city_name])
+            .then(rows => res.json({status: 200}))
+            .catch(err => {
+                console.log(err);
+                return res.json({status: 500, err: err});
+            })
     } catch (error) {
         console.error(error);
         res.status(403).send("createDepartment error");
     }
 };
+exports.create_sub_division = async (req, res) => {
+    try {
+        const {div_id, sub_div_name, description} = req.body;
+        const q = `insert into sub_division(div_id, sub_div_name, description) values (?, ?, ?);`;
+        database.query(q, [div_id, sub_div_name, description])
+            .then(rows => res.json({status: 200}))
+            .catch(err => {
+                console.log(err);
+                return res.json({status: 500, err: err});
+            })
+    } catch (error) {
+        console.error(error);
+        res.status(403).send("create_division error");
+    }
+
+};
 exports.create_division = async (req, res) => {
     try {
-        const division = req.body.division;
-        if (division.division_name && division.division_description) {
-            res.json({status: 500});
-            return
-        }
-        const divisionValues = [division.division_name, division.division_description];
-        const querySting = "insert into divisions(div_title, div_description) values (?, ?);";
-        console.log(divisionValues);
-        database.query(querySting, divisionValues)
-            .then(rows => {
-                console.log("create_division: Success:", rows);
-                res.json({status: 200});
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
+        const {div_title, div_description} = req.body;
+        const q = `insert into divisions(div_title, div_description) values (?, ?);`;
+        database.query(q, [div_title, div_description])
+            .then(rows => res.json({status: 200}))
+            .catch(err => {
+                console.log(err);
+                return res.json({status: 500, err: err});
+            })
     } catch (error) {
         console.error(error);
         res.status(403).send("create_division error");
@@ -1596,17 +1545,14 @@ exports.create_division = async (req, res) => {
 };
 exports.createDesignation = async (req, res) => {
     try {
-        const designation = req.body.designation;
-        const departmentValues = [designation.designation_title, designation.designation_scale, designation.department_id];
-        const querySting = "insert into designations(des_title, des_scale, department_id) values (?, ?, ?);";
-        database.query(querySting, departmentValues)
-            .then(rows => {
-                console.log(rows);
-                res.json(rows)
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
+        const {des_title, des_scale, department_id} = req.body;
+        const querySting = `insert into designations(des_title, des_scale, department_id) values (?, ?, ?);`;
+        database.query(querySting, [des_title, des_scale, department_id])
+            .then(rows => res.json({status: 200}))
+            .catch(err => {
+                console.log(err);
+                return res.json({status: 500, err: err});
+            })
     } catch (error) {
         console.error(error);
         res.status(403).send("createDesignation error");
@@ -1640,28 +1586,25 @@ exports.listSearch = async (req, res) => {
 exports.showEmployee = async (req, res) => {
     try {
         console.log(req.params.id);
-        const querySting = "SELECT emp.employee_id, emp.cnic, emp.full_name, emp.father_name, emp.appointment_date, emp.birth_date, emp.gender, emp.email, emp.local, emp.employee_photo,\n" +
-            "       adrs.current_address, adrs.permanent_address, adrs.postal_code, adrs.phone_number, adrs.phone_number2,\n" +
-            "       emptrain.train_name, emptrain.train_description, emptrain.train_start_date, emptrain.train_end_date, emptrain.train_location_name, emptrain.certificate_photo AS trian_certificate_photo,\n" +
-            "       emp_des.order_date AS emp_des_order_date, emp_des.appointment_date AS emp_des_appointment_date, emp_des.order_letter_photo AS emp_des_order_letter_photo, emp_des.is_active emp_des_is_active,\n" +
-            "       des.des_title, des.des_scale,\n" +
-            "       depart.department_name, depart.department_description, depart.department_city_name\n" +
-            "FROM employees AS emp\n" +
-            "INNER JOIN addresses AS adrs ON emp.employee_id = adrs.employee_id\n" +
-            "INNER JOIN employees_trainings AS emptrain ON emp.employee_id = emptrain.employee_id\n" +
-            "INNER JOIN employees_designations AS emp_des ON emp.employee_id = emp_des.employee_id\n" +
-            "INNER JOIN designations AS des ON emp_des.des_id = des.des_id\n" +
-            "INNER JOIN department AS depart ON des.department_id = depart.department_id\n" +
-            "where emp.employee_id = ?;";
-        database.query(querySting, [req.params.id])
-            .then(rows => {
-                console.log(" we are in designation_list_items");
-                console.log(rows);
-                res.json(rows)
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
+        const q = `SELECT emp.employee_id, emp.cnic, emp.full_name, emp.father_name, emp.appointment_date, emp.birth_date, emp.gender, emp.email, emp.local, emp.employee_photo,
+                   adrs.current_address, adrs.permanent_address, adrs.postal_code, adrs.phone_number, adrs.phone_number2,
+                   emptrain.train_name, emptrain.train_description, emptrain.train_start_date, emptrain.train_end_date, emptrain.train_location_name, emptrain.certificate_photo AS trian_certificate_photo,
+                   emp_des.order_date AS emp_des_order_date, emp_des.appointment_date AS emp_des_appointment_date, emp_des.order_letter_photo AS emp_des_order_letter_photo, emp_des.is_active emp_des_is_active,
+                   des.des_title, des.des_scale,
+                   depart.department_name, depart.department_description, depart.department_city_name
+                    FROM employees AS emp
+                    INNER JOIN addresses AS adrs ON emp.employee_id = adrs.employee_id
+                    INNER JOIN employees_trainings AS emptrain ON emp.employee_id = emptrain.employee_id
+                    INNER JOIN employees_designations AS emp_des ON emp.employee_id = emp_des.employee_id
+                    INNER JOIN designations AS des ON emp_des.des_id = des.des_id
+                    INNER JOIN department AS depart ON des.department_id = depart.department_id
+                    where emp.employee_id = ?;`;
+        database.query(q, [req.params.id])
+            .then(rows => res.json(rows))
+            .catch(err => {
+                console.log(err);
+                return res.json({status: 500, err: err});
+            })
     } catch (error) {
         console.error(error);
         res.status(403).send("showEmployee error");
@@ -1707,13 +1650,11 @@ exports.department_list = async (req, res) => {
         console.log("responding to department_list route");
         const querySting = "SELECT * FROM department;";
         database.query(querySting)
-            .then(rows => {
-                console.log(rows);
-                res.json(rows)
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
+            .then(rows => res.json(rows))
+            .catch(err => {
+                console.log(err);
+                return res.json({status: 500, err: err});
+            })
     } catch (error) {
         console.error(error);
         res.status(403).send("department_list error");
@@ -1724,13 +1665,11 @@ exports.division_list = async (req, res) => {
         console.log("responding to division_list route");
         const querySting = "SELECT * FROM divisions;";
         database.query(querySting)
-            .then(rows => {
-                console.log(rows);
-                res.json(rows)
-            }).catch(err => {
-            console.log(err);
-            return res.json({status: 500, err: err});
-        })
+            .then(rows => res.json(rows))
+            .catch(err => {
+                console.log(err);
+                return res.json({status: 500, err: err});
+            })
     } catch (error) {
         console.error(error);
         res.status(403).send("division_list error");

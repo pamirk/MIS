@@ -1,3 +1,4 @@
+const saveFile = require("../utils/saveFile");
 const Database = require("../utils/PoolDatabase");
 const mysql = require("mysql");
 const bcrypt = require('bcryptjs');
@@ -1143,7 +1144,7 @@ async function main(res, email, title, message) {
         }
     });
 }
-function saveFile(file) {
+/*function saveFile(file) {
     let fileName = file["fieldname"] + "-" + Date.now();
     let extension = file["mimetype"].split("/");
     fs.appendFile('./static/uploads/'  + fileName + "." + extension[1], file["buffer"],
@@ -1156,4 +1157,4 @@ function saveFile(file) {
         }
     );
     return fileName + "." + extension[1];
-}
+}*/

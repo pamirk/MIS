@@ -1,12 +1,11 @@
 import React, {useEffect, useRef, useState} from "react";
-import {Button, Col, Row, Table, message, Input, Icon} from "antd";
+import {Button, Icon, Input, Table} from "antd";
 import Router from "next/router";
-import Link from "next/link";
 import moment from "moment";
 import Highlighter from "react-highlight-words";
 
 export default function Index({trainings}) {
-    const [data, setData] = useState(trainings);
+    const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [modelVisible, setModelVisible] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -16,11 +15,11 @@ export default function Index({trainings}) {
     const handleOk = () => setModelVisible(false);
     const handleCancel = () => setModelVisible(false);
 
-    /* useEffect(() => {
-         // let myData = [];
-         // trainings.map(t => myData.push({...t}));
-         setData(trainings)
-     }, []);*/
+     useEffect(() => {
+         let myData = [];
+         trainings.map(t => myData.push({...t, key: t.id}));
+         setData(myData)
+     }, []);
 
 
     const getColumnSearchProps = dataIndex => ({

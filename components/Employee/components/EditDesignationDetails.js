@@ -8,8 +8,10 @@ import catchErrors from "../../../utils/catchErrors";
 import moment from "moment";
 import * as _ from "lodash";
 import {formItemLayout, getBase64} from "../../Common/UI";
+
 const FormItem = Form.Item;
 const {Option} = Select;
+
 function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
     const [order_Date, setOrder_Date] = useState(false);
     const [appointment_Date, setAppointment_Date] = useState(false);
@@ -37,7 +39,7 @@ function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
             .then(data => {
                 for (let i = 1; i <= data.length; i++) {
                     const d = data[i - 1];
-                    items.push(<Option value={d.department_id}>{d.department_name}</Option>)
+                    items.push(<Option key={d.department_id} value={d.department_id}>{d.department_name}</Option>)
                 }
                 setDeparts(items);
             })
@@ -62,12 +64,14 @@ function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
     const handlerSubmit = (event) => {
         event.preventDefault();
         form.validateFields((err, values) => {
-            if (!err && !_.isEqual(values, fieldsValue)) {
+            if (!err) {
+                if (_.isEqual(values, fieldsValue)) {
+                    message.info("Nothing to update")
+                    return
+                }
                 try {
-                    console.log("fileList[0].name fileList[fileList.length -1].name,",  _.isEqual(values.emp_des_order_letter_photo, fieldsValue.emp_des_order_letter_photo))
-
-                     setLoading(true);
-                     getDataOutofForm();
+                    setLoading(true);
+                    getDataOutofForm();
                 } catch (error) {
                     message.error(catchErrors(error));
                 } finally {
@@ -132,9 +136,9 @@ function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
     );
     const handleChange = info => {
         getBase64(info.fileList[info.fileList.length - 1].originFileObj, imageUrl => {
-                setImage(imageUrl);
-                setLoading(false);
-            });
+            setImage(imageUrl);
+            setLoading(false);
+        });
     };
     const DraggerProps = {
         showUploadList: false,
@@ -147,7 +151,7 @@ function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
         beforeUpload: file => {
             setFileList([...fileList, file]);
             return false;
-        },
+        }
     };
     const {getFieldDecorator} = form;
     return (
@@ -190,7 +194,7 @@ function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
                         rules: [{required: true, message: "Provide Order Copy"}]
                     })(
                         <Upload listType="picture-card"
-                                className="avatar-uploader"  {...DraggerProps} onChange={handleChange}>
+                                className="avatar-uploader" {...DraggerProps} onChange={handleChange}>
                             {data.emp_des_order_letter_photo ?
                                 <img src={image} alt="avatar" style={{width: '100%'}}/> : uploadButton}
                         </Upload>
@@ -200,11 +204,17 @@ function EditDesignationDetails({handleOk, hideHandler, id, data, form}) {
                 <div className='flex-justify-content'>
                     <Button size={"large"} className='mr-2' htmlType="submit" loading={loading}
                             disabled={loading}
-                            style={{backgroundColor: '#0a8080', color: 'white', padding: '0px 40px', fontWeight: 600}}>Update</Button>
+                            style={{
+                                backgroundColor: '#0a8080',
+                                color: 'white',
+                                padding: '0px 40px',
+                                fontWeight: 600
+                            }}>Update</Button>
                     <Button onClick={handleOk} size={"large"}>Cancel</Button>
                 </div>
             </Form>
         </div>
     );
 }
+
 export default Form.create()(EditDesignationDetails);

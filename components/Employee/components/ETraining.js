@@ -1,34 +1,15 @@
 import * as React from 'react';
-import {Component} from "react";
-import {
-    Button,
-    Card,
-    Col,
-    Divider,
-    Form,
-    Icon,
-    Input,
-    message,
-    Modal,
-    Skeleton,
-    Spin,
-    Table,
-    Tooltip,
-    Typography
-} from "antd";
+import {useEffect, useRef, useState} from 'react';
+import {Button, Card, Divider, Icon, Input, message, Modal, Skeleton, Table} from "antd";
 import Highlighter from "react-highlight-words";
-import TrainingComponent from "./TrainingComponent";
 import baseUrl from "../../../utils/baseUrl";
-import Link from "next/link";
-import {useState, useEffect, useRef} from "react";
-import {LEAVE_STATUS} from "../../../server/utils/status";
 import moment from "moment";
-import {period} from "../../../utils/common";
 import Router from "next/router";
 import {parseCookies} from "nookies";
 import {redirectUser} from "../../../utils/auth";
 import axios from "axios";
 import List18 from "../../Training/List18";
+
 export default function Training({id, ctx, employee}) {
     const [loading, setLoading] = useState(false);
     const [triggerUseEffect, setTriggerUseEffect] = useState(false);

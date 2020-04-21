@@ -12,21 +12,21 @@ const FormItem = Form.Item;
 
 function PromoteDesignation({Indexkey, hideHandler, id, data, form, handleCancelProp}) {
     const [loading, setLoading] = useState(false);
-    const [fimage, setFimage] = useState('');
     const [image, setImage] = useState(null);
-    const [divisions, setDivisions] = useState(null);
+    const [departments, setDepartments] = useState(null);
     const [designationsItems, setDesignationsItems] = useState(null);
     const [selectedDepartment, setSelectedDepartment] = useState(data[0]["department_name"] || null);
-    const [departs, setDeparts] = useState(null);
 
     useEffect(() => {
         if (Indexkey) {
             setBaseInfo();
         }
-        form.setFieldsValue({department_name:selectedDepartment});
+        form.setFieldsValue({department_name: selectedDepartment});
         getDepartmentList();
-        console.log('selectedDepartment',selectedDepartment);
-        getDesignationsList(data[0]["department_id"] || null);
+        console.log('selectedDepartment', selectedDepartment);
+        if (data[0]["department_id"]){
+            getDesignationsList(data[0]["department_id"]);
+        }
     }, []);
 
     const setBaseInfo = () => {
@@ -76,45 +76,26 @@ function PromoteDesignation({Indexkey, hideHandler, id, data, form, handleCancel
         });
     };
 
-    const getDepartmentList = () => {
+    const getDepartmentList = async () => {
         let items = [];
-        fetch(baseUrl + '/api/department_list', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-            .then(data => data.json())
-            .then(data => {
-                for (let i = 1; i <= data.length; i++) {
-                    const department = data[i - 1];
-                    items.push(<Option value={department.department_id}>{department.department_name}</Option>)
-                }
-                setDivisions(items);
-            })
+        const url = `${baseUrl}/api/department_list`;
+        const {data} = await axios.get(url);
+        data.map(d => items.push(<Select.Option key={d.department_id}
+                                                value={d.department_id}>{d.department_name}</Select.Option>));
+        setDepartments(items);
     };
-    const getDesignationsList = (id) => {
+    const getDesignationsList = async (id) => {
         let items = [];
-        fetch(baseUrl + `/api/designation_list/${id}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-            .then(data => data.json())
-            .then(data => {
-                for (let i = 1; i <= data.length; i++) {
-                    const designation = data[i - 1];
-                    items.push(<Option value={designation.des_id}>{designation.des_title}</Option>)
-                }
-                setDesignationsItems(items);
-            })
+        const url = `${baseUrl}/api/designation_list/${id}`;
+        const {data} = await axios.get(url);
+        data.map(d => items.push(<Select.Option key={d.des_id}
+                                                value={d.des_id}>{d.des_title}</Select.Option>));
+        setDesignationsItems(items);
     };
 
-    const onDepartmentMenuChange = (value) => {
-        setSelectedDepartment(value);
-        console.log('value', value);
-        getDesignationsList(value);
+    const onDepartmentMenuChange = (id) => {
+        setSelectedDepartment(id);
+        getDesignationsList(id);
     };
 
     const onImageDataChange = (e) => {
@@ -142,7 +123,7 @@ function PromoteDesignation({Indexkey, hideHandler, id, data, form, handleCancel
                         rules: [{required: true, message: "Select Department Name"}]
                     })(
                         <Select onChange={onDepartmentMenuChange} placeholder='Select Department'>
-                            {divisions}
+                            {departments}
                         </Select>
                     )}
                 </FormItem>
@@ -155,7 +136,8 @@ function PromoteDesignation({Indexkey, hideHandler, id, data, form, handleCancel
                 </FormItem>
                 <FormItem label="Designation Image">{
                     getFieldDecorator('des_photo', {
-                        rules: [{required: true, message: "Please Provide Designation Image"}]})(
+                        rules: [{required: true, message: "Please Provide Designation Image"}]
+                    })(
                         <Input onChange={onImageDataChange} type='file' size='large' title='Designation Letter Photo'/>
                     )}
                 </FormItem>

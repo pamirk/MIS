@@ -1,17 +1,12 @@
 import * as React from 'react';
-import {useState} from 'react';
-import {Button, Card, Modal, Typography} from 'antd';
+import {useEffect, useState} from 'react';
+import {Card, Modal, Typography} from 'antd';
 import {Col, Row} from "reactstrap";
-import BaseView from "./base";
 import Address from "./Address";
 import baseUrl from "../../../utils/baseUrl";
-import EditDesignationDetails from "./EditDesignationDetails";
 import EditBasicDetails from "./EditBasicDetails";
 import {cardTitleIcon} from "../../Common/UI";
-import {useEffect} from "react";
-import moment from "moment";
 
-const {Text} = Typography;
 export default function Personal({id, p_employee, p_address}) {
     const [employee, setEmployee] = useState(p_employee);
     const [address, setAddress] = useState(null);

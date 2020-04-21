@@ -189,10 +189,7 @@ export default function Transfer({id, employee}) {
             dataIndex: 'actions',
             render: (text, record) => (
                 <span>
-                    <Link>
-                      <a onClick={() => handlePreview(awsb + `/${record.photo}`)}>
-                          <Icon type="eye" theme="twoTone" title='View Order Letter photo' /></a>
-                    </Link>
+                    <Icon onClick={() => handlePreview(awsb + `/${record.photo}`)} type="eye" theme="twoTone" title='View Order Letter photo' />
                 </span>
             ),
         },
