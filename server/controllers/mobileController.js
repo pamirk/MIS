@@ -43,7 +43,7 @@ exports.check_connection = async (req, res) => {
     try {
         const queryString = 'SELECT 1+1';
         database.query(queryString)
-            .then(rows => res.send('Your reporting forwarded succesfull'))
+            .then(rows => res.json({success: 'Your reporting forwarded succesfull'}))
             .catch(error => {
                 console.log("database error in check_connection routes:  ", error);
                 return res.status(401).json({message: 'error in getting check_connection'});
@@ -1144,6 +1144,7 @@ async function main(res, email, title, message) {
         }
     });
 }
+
 /*function saveFile(file) {
     let fileName = file["fieldname"] + "-" + Date.now();
     let extension = file["mimetype"].split("/");
