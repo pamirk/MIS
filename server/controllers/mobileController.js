@@ -942,7 +942,7 @@ exports.registeration = async (req, res) => {
                             user_address = req.body.address;
                             user_gender = req.body.gender;
 
-                            let fileWasa = saveFile(req.files["wasa"][0]);
+                            let fileWasa = saveFile(req.file);
                             let fileBack = "not required at this stage";
                             success = {
                                 success: "new user registered"

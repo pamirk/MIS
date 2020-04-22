@@ -37,11 +37,9 @@ const avatarUploadOptions = {
     }
 };
 const uploadAvatar = multer(avatarUploadOptions).single("image");
-
 const singleFileAttachment = multer(avatarUploadOptions).fields([{name: "attachment"}]);
 const cpUpload = multer(avatarUploadOptions).fields([{name: "wasa"}]);
 const noneAvatar = multer(avatarUploadOptions).none();
-
 const resizeAvatar = async (req, res, next) => {
     if (!req.file) {
         return next();
@@ -55,6 +53,10 @@ const resizeAvatar = async (req, res, next) => {
     await image.write(`./${req.file.path}`);
     next();
 };
+
+const storageX = multer.memoryStorage();
+const uploadX = multer({storage: storageX, limits: {fileSize: 5 * 1024 * 1024}});
+
 
 router.get("/get_employee", mC.get_employee);
 router.get("/get_department", mC.get_department);
@@ -91,14 +93,14 @@ router.post("/get_sorted_complains_against_date_and_status", mC.get_sorted_compl
 router.post("/get_total_coplains_by_department_sort_by_time", mC.get_total_coplains_by_department_sort_by_time);
 router.post("/get_total_coplains_by_department", mC.get_total_coplains_by_department);
 router.post("/get_single_complains_forwarding_with_attachment", mC.get_single_complains_forwarding_with_attachment);
-router.post("/complains", mC.complains);
-router.post("/set_resolve_complain", mC.set_resolve_complain);
-router.post("/reporting_complains", mC.reporting_complains);
-router.post("/reporting_attachment",  mC.reporting_attachment);
-router.post("/registeration", mC.registeration);
-router.post("/update_registeration", mC.update_registeration);
-router.post("/verify_registeration",  mC.verify_registeration);
-router.post("/registeration", mC.registeration2);
+router.post("/complains", uploadX.none(), mC.complains);
+router.post("/set_resolve_complain", uploadX.none(), mC.set_resolve_complain);
+router.post("/reporting_complains", noneAvatar, mC.reporting_complains);
+router.post("/reporting_attachment", singleFileAttachment, mC.reporting_attachment);
+router.post("/registeration",uploadX.single("wasa"), mC.registeration);
+router.post("/update_registeration", uploadX.fields([{name: "front"}, {name: "back"}, {name: "wasa"}]), mC.update_registeration);
+router.post("/verify_registeration", uploadX.fields([{name: "front"}, {name: "back"}]), mC.verify_registeration);
+router.post("/registeration", uploadX.fields([{name: "front"}, {name: "back"}, {name: "wasa"}]), mC.registeration2);
 router.post("/posturl", mC.posturl);
 
 
