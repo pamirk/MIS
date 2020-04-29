@@ -99,6 +99,7 @@ router.post("/reporting_complains", noneAvatar, mC.reporting_complains);
 router.post("/reporting_attachment", singleFileAttachment, mC.reporting_attachment);
 router.post("/registeration",uploadX.single("wasa"), mC.registeration);
 router.post("/update_registeration", uploadX.fields([{name: "front"}, {name: "back"}, {name: "wasa"}]), mC.update_registeration);
+router.post("/attachment", uploadX.fields([{name: "attachment"}]), mC.attachment);
 router.post("/verify_registeration", uploadX.fields([{name: "front"}, {name: "back"}]), mC.verify_registeration);
 router.post("/registeration", uploadX.fields([{name: "front"}, {name: "back"}, {name: "wasa"}]), mC.registeration2);
 router.post("/posturl", mC.posturl);
