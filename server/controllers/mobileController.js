@@ -545,7 +545,7 @@ exports.get_single_complains_forwarding = async (req, res) => {
                             RIGHT JOIN designations ON employees_designations.des_id = designations.des_id
                    WHERE complain_id LIKE ?
                    ORDER BY forwards_date DESC`;
-        database.query(q, [req.body.complain_id])
+        database.query(q, [req.body.complain_id, req.body.complain_id])
             .then(rows => res.send(rows))
             .catch(error => {
                 console.log("database error in get_single_complains_forwarding routes:  ", error);
