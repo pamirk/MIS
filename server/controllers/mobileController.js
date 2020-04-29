@@ -8,7 +8,7 @@ const jet_secret = "d,f.1`!@f#$&*()@dnkfndf";
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const path = require("path");
-
+const ADMIN_ID = 14;
 const database = new Database();
 
 exports.get_employee = async (req, res) => {
@@ -214,7 +214,7 @@ exports.get_forwards_complains = async (req, res) => {
                          FROM complains_reporting_body
                                   INNER JOIN consumer_complains_table ON complains_reporting_body.complain_id =
                                                                          consumer_complains_table.complain_id
-                         WHERE complains_reporting_body.forwards_to = '50'
+                         WHERE complains_reporting_body.forwards_to = ${ADMIN_ID}
                            AND complains_reporting_body.is_seen = 1
                            AND consumer_complains_table.complain_status NOT LIKE 'RESOLVED'
                          GROUP BY complains_reporting_body.complain_id
@@ -751,7 +751,7 @@ exports.complains = async (req, res) => {
             success: "Your complain registered succesfull"
         };
 
-        let queryReport = `INSERT INTO complains_reporting_body VALUES("${new_id}", "${complain_id}", '50',  '50', NOW(), 'NEW COMPLAIN', 'NOT DECIDED', 'admin', 0, 'REGISTERED', 1, 0, 0, 1,0)`;
+        let queryReport = `INSERT INTO complains_reporting_body VALUES("${new_id}", "${complain_id}", ${ADMIN_ID},  ${ADMIN_ID}, NOW(), 'NEW COMPLAIN', 'NOT DECIDED', 'admin', 0, 'REGISTERED', 1, 0, 0, 1,0)`;
         let query = `INSERT INTO consumer_complains_table VALUES("${complain_id}", "${account_number}", "${complain_body}", "${complains_status}", "${lat}", "${lng}",  NOW(), 0)`;
 
         database.query(query)
