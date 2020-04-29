@@ -861,14 +861,18 @@ exports.reporting_attachment = async (req, res) => {
 
         let attachment_id,
             complains_reporting_id,
-            attachment_name,
             attachment_file_type;
         attachment_id = req.body.reporting_attachments_id;
         let success = {
             success: "attachment saved!"
         };
         complains_reporting_id = req.body.complains_reporting_id;
-        attachment_name = saveFile(req.files["attachment"][0]).fileLink.key;
+        let attachment_name = '';
+        if (req.files["attachment"]) {
+            let r =  await saveFile(req.files["attachment"][0]);
+            attachment_name = r.fileLink.key;
+        }
+
         attachment_file_type = req.body.reporting_attachment_file_type;
 
         let query = `INSERT INTO reporting_attachments VALUES("${attachment_id}", "${complains_reporting_id}", "${attachment_name}", "${attachment_file_type}",  NOW())`;
@@ -886,13 +890,17 @@ exports.reporting_attachment = async (req, res) => {
 };
 exports.attachment = async (req, res) => {
     try {
-        let attachment_id, complain_id, attachment_name, attachment_file_type;
+        let attachment_id, complain_id, attachment_file_type;
         attachment_id = req.body.attachment_id;
         let success = {
             success: "attachment saved!"
         };
         complain_id = req.body.complain_id;
-        attachment_name = saveFile(req.files["attachment"][0]).fileLink.key;
+        let attachment_name = '';
+        if (req.files["attachment"]) {
+            let r =  await saveFile(req.files["attachment"][0]);
+            attachment_name = r.fileLink.key;
+        }
         attachment_file_type = req.body.attachment_file_type;
 
         let query = `INSERT INTO consumer_attachment VALUES("${attachment_id}", "${complain_id}", "${attachment_name}", "${attachment_file_type}",  NOW())`;
@@ -922,7 +930,7 @@ exports.registeration = async (req, res) => {
                 };
                 if (rows0[0]["available"] !== 0) {
                     database.query('SELECT * from user_registration_table')
-                        .then(rows1 => {
+                        .then(async rows1 => {
                             let success = {
                                 success: "this user is already registered"
                             };
@@ -941,8 +949,11 @@ exports.registeration = async (req, res) => {
                             user_contact = req.body.contact;
                             user_address = req.body.address;
                             user_gender = req.body.gender;
-
-                            let fileWasa = saveFile(req.file).fileLink.key;
+                            let fileWasa = '';
+                            if (req.files["wasa"]) {
+                                let r =  await saveFile(req.files["wasa"][0]);
+                                fileWasa = r.fileLink.key;
+                            }
                             let fileBack = "not required at this stage";
                             success = {
                                 success: "new user registered"
@@ -970,7 +981,6 @@ exports.update_registeration = async (req, res) => {
         let account_number, user_cnic, user_name, user_email, user_gender, user_password, user_address, user_contact;
 
         account_number = req.body.account_number;
-        // res.send(account_number)
         user_cnic = req.body.cnic;
         user_name = req.body.name;
         user_email = req.body.email;
@@ -979,9 +989,23 @@ exports.update_registeration = async (req, res) => {
         user_address = req.body.address;
         user_gender = req.body.gender;
 
-        let fileWasa = saveFile(req.files["wasa"][0]).fileLink.key;
-        let fileBack = saveFile(req.files["back"][0]).fileLink.key;
-        let fileFront = saveFile(req.files["front"][0]).fileLink.key;
+
+        let fileWasa = '';
+        let fileBack = '';
+        let fileFront = '';
+
+        if (req.files["wasa"]) {
+            let r1 =  await saveFile(req.files["wasa"][0]);
+            fileWasa = r1.fileLink.key;
+        }
+        if (req.files["back"]) {
+            let r2 =  await saveFile(req.files["back"][0]);
+            fileBack = r2.fileLink.key;
+        }
+        if (req.files["front"]) {
+            let r3 =  await saveFile(req.files["front"][0]);
+            fileFront = r3.fileLink.key;
+        }
         let success = {
             success: "Credentials updated"
         };
@@ -1021,9 +1045,17 @@ exports.verify_registeration = async (req, res) => {
         user_address = req.body.address;
         user_gender = req.body.gender;
 
-        // var fileWasa = saveFile(req.files["wasa"][0]).fileLink.key
-        let fileBack = saveFile(req.files["back"][0]).fileLink.key;
-        let fileFront = saveFile(req.files["front"][0]).fileLink.key;
+        // var fileWasa =  await saveFile(req.files["wasa"][0]).fileLink.key
+        let fileBack = '';
+        if (req.files["front"]) {
+            let r =  await saveFile(req.files["front"][0]);
+            fileBack = r.fileLink.key;
+        }
+        let fileFront = '';
+        if (req.files["back"]) {
+            let r =  await saveFile(req.files["back"][0]);
+            fileFront = r.fileLink.key;
+        }
         let success = {
             success: "Credentials updated"
         };
@@ -1055,7 +1087,7 @@ exports.registeration2 = async (req, res) => {
                 };
                 if (rows0[0]["available"] !== 0) {
                     database.query('SELECT * from user_registration_table')
-                        .then(rows1 => {
+                        .then(async rows1 => {
                             let success = {
                                 success: "this user is already registered"
                             };
@@ -1071,9 +1103,23 @@ exports.registeration2 = async (req, res) => {
                             user_address = req.body.address;
                             user_gender = req.body.gender;
 
-                            let fileBack = saveFile(req.files["back"][0]).fileLink.key;
-                            let fileWasa = saveFile(req.files["wasa"][0]).fileLink.key;
-                            let fileFront = saveFile(req.files["front"][0]).fileLink.key;
+                            let fileWasa = '';
+                            let fileBack = '';
+                            let fileFront = '';
+
+                            if (req.files["wasa"]) {
+                                let r1 =  await saveFile(req.files["wasa"][0]);
+                                fileWasa = r1.fileLink.key;
+                            }
+                            if (req.files["back"]) {
+                                let r2 =  await saveFile(req.files["back"][0]);
+                                fileBack = r2.fileLink.key;
+                            }
+                            if (req.files["front"]) {
+                                let r3 =  await saveFile(req.files["front"][0]);
+                                fileFront = r3.fileLink.key;
+                            }
+
                             success = {
                                 success: "new user registered"
                             };
@@ -1151,7 +1197,7 @@ async function main(res, email, title, message) {
     fs.appendFile('./static/uploads/'  + fileName + "." + extension[1], file["buffer"],
         function (err) {
             if (err) {
-                console.error("err in saveFile !", err);
+                console.error("err in  saveFile !", err);
             } else {
                 console.log("Saved!");
             }

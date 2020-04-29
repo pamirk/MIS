@@ -95,8 +95,8 @@ router.post("/get_total_coplains_by_department", mC.get_total_coplains_by_depart
 router.post("/get_single_complains_forwarding_with_attachment", mC.get_single_complains_forwarding_with_attachment);
 router.post("/complains", uploadX.none(), mC.complains);
 router.post("/set_resolve_complain", uploadX.none(), mC.set_resolve_complain);
-router.post("/reporting_complains", noneAvatar, mC.reporting_complains);
-router.post("/reporting_attachment", singleFileAttachment, mC.reporting_attachment);
+router.post("/reporting_complains", uploadX.none(), mC.reporting_complains);
+router.post("/reporting_attachment", uploadX.fields([{name: "attachment"}]), mC.reporting_attachment);
 router.post("/registeration",uploadX.single("wasa"), mC.registeration);
 router.post("/update_registeration", uploadX.fields([{name: "front"}, {name: "back"}, {name: "wasa"}]), mC.update_registeration);
 router.post("/attachment", uploadX.fields([{name: "attachment"}]), mC.attachment);
