@@ -126,7 +126,7 @@ export default function EmployeeTable({data}) {
                   </Link>
                   <Divider type="vertical"/>
                   <Link href={`employee_report/${record.key}`}>
-                      <a>Report</a>
+                      <a target='_blank'>Report</a>
                   </Link>
                 </span>
             )

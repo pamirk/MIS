@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react"
 import {Button, Col, Media, Row} from "reactstrap"
 import Head from "next/head";
-import {Avatar, Card, Divider, Form, Icon, message, Modal} from "antd";
+import {Avatar, Card, Divider, Form, Icon, Input, message, Modal} from "antd";
 import baseUrl from "../../utils/baseUrl";
 import axios from "axios";
 import {UserHeaderStateProvider, useUserHeaderState} from "./useUserHeaderState";
@@ -115,17 +115,35 @@ function UserHeader({url, id, name, formNumber, email, designation, status, cont
                             <Media className="mt-md-1 mt-0" left>
                                 <div className="gx-profile-banner-avatar">
                                     <div className='profile-pic'>
-                                            <span className='profile-photo-img'>
-                                               {rolesInts.includes(VIEW_PROFILE_IMAGE) && <Avatar className="gx-size-112 rounded mr-2" src={avatarURL}/>}
-                                            </span>
-                                        <div className="edit">
+                                           {/* <span className='profile-photo-img'>
+                                               {rolesInts.includes(VIEW_PROFILE_IMAGE) &&
+                                               <Avatar className="gx-size-112 rounded mr-2" src={avatarURL}/>}
+                                            </span>*/}
+
+                                        <span className="avatar-uploader ant-upload-picture-card-wrapper">
+                                            <div className="ant-upload ant-upload-select ant-upload-select-picture-card">
+                                                <span tabIndex="0" className="ant-upload" role="button">
+                                                    {rolesInts.includes(VIEW_PROFILE_IMAGE) &&
+                                                    <img src={avatarURL} alt="avatar"
+                                                         onClick={() => {
+                                                             if (rolesInts.includes(EDIT_PROFILE_IMAGE)) {
+                                                                 dispatch({type: "ADD_PHOTO_MODAL_CLICKED"})
+                                                             }
+                                                         }}
+                                                         title="Click on Image to Change Profile Image"
+                                                         style={{width: "100%"}}/>
+                                                    }
+                                                </span>
+                                            </div>
+                                        </span>
+                                        {/*<div className="edit">
                                             <a href="#">
                                                 {rolesInts.includes(EDIT_PROFILE_IMAGE) &&
                                                 <Icon theme="twoTone" type="edit"
                                                       style={{fontSize: '20px', color: '#111'}}
                                                       onClick={() => dispatch({type: "ADD_PHOTO_MODAL_CLICKED"})}/>}
                                             </a>
-                                        </div>
+                                        </div>*/}
                                     </div>
                                 </div>
                             </Media>
@@ -186,24 +204,23 @@ function UserHeader({url, id, name, formNumber, email, designation, status, cont
                     <div className='text-large'>Help your team know what you look like by setting a profile photo.</div>
                     <div className='p-5'>
                         <Form>
-                            <div className='flex-justify-content'>
-                                <Avatar className="model-profile-photo-img" alt="..."
-                                        src={modalImg ? modalImg : avatarURL}/>
+                            <div className='d-flex justify-content-center'>
+                                <img src={modalImg ? modalImg : avatarURL} alt="avatar"  className='w-75'/>
                             </div>
                             <Divider/>
-                            <div className='flex-justify-content'>
+                            <div className='d-flex flex-wrap justify-content-center'>
                                 {(profileImageToBeUpload) ?
-                                    <Button size={"large"} className='pr-5 pl-5 mr-2' htmlType="submit"
+                                    <Button size={"large"} className='mr-1 mb-1' htmlType="submit"
                                             loading={loading}
                                             disabled={loading} onClick={handleSaveProfileImage}
                                             style={{backgroundColor: '#0a8080', color: 'white'}}>Save</Button> :
-                                    <span className="pr-5 pl-5 mr-2 btn-md btn-primary-green upload-button">
+                                    <span className="mr-1 mb-1 btn btn-primary-green upload-button">
                                             <span className="text">Upload Photo</span>
-                                            <input name="upload_button" type="file"
+                                            <Input name="upload_button" type="file"
                                                    onChange={onImageDataChange}/>
                                         </span>
                                 }
-                                <Button size={"large"} disabled={loading} onClick={handleCancel}>Cancel</Button>
+                                <Button className='mb-1' size={"large"} disabled={loading} onClick={handleCancel}>Cancel</Button>
                             </div>
                         </Form>
                     </div>
