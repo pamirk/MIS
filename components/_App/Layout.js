@@ -114,6 +114,11 @@ function AppLayout({children, user}) {
                     <a><span>Personal details</span></a>
                 </Link>
             </Menu.Item>
+            <Menu.Item key="15">
+                <Link href="/adminsettings">
+                    <a><span>Admin Settings</span></a>
+                </Link>
+            </Menu.Item>
         </Menu>;
 
     return (

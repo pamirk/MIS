@@ -14,6 +14,7 @@ const adminRoutes = [
     '/create_sub_division',
     '/employees',
     '/leave',
+    '/adminsettings',
 ];
 const authRoutes = [
     ...adminRoutes,

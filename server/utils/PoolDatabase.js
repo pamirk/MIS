@@ -1,6 +1,6 @@
 const mysql = require('mysql');
 
-const configDB =
+/*const configDB =
     process.env.NODE_ENV === "production"
         ? {
             connectionLimit: 10,
@@ -15,15 +15,15 @@ const configDB =
             user: 'root',// root bc99c51f80ea0b
             password: 'root',//root 5afe21fc
             database: 'pk', //pk heroku_436891b58c83c67
-        };
-/*const configDB =
+        };*/
+const configDB =
     {
         connectionLimit: 10,
         host: 'us-cdbr-iron-east-04.cleardb.net', //localhost us-cdbr-iron-east-04.cleardb.net
         user: 'bc99c51f80ea0b',// root bc99c51f80ea0b
         password: '5afe21fc',//root 5afe21fc
         database: 'heroku_436891b58c83c67', //pk heroku_436891b58c83c67
-    };*/
+    };
 module.exports = class Database {
     constructor() {
         this.pool = mysql.createPool(configDB);

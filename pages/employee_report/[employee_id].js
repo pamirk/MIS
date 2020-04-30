@@ -17,21 +17,10 @@ function EmployeeReport({employee, address, designations, p_roles, ctx, user}) {
     return (
         <div className='min-vh-100'>
             <Row>
-                <Col className="mb-1 invoice-header" md="5" sm="12">
-                    <Input.Group>
-                        <Input placeholder="Email"/>
-                        <Input.Group addonType="append">
-                            <Button color="primary" outline>
-                                Send Invoice
-                            </Button>
-                        </Input.Group>
-                    </Input.Group>
-                </Col>
                 <Col
                     className="d-flex flex-column flex-md-row justify-content-end invoice-header mb-1"
                     md="7"
-                    sm="12"
-                >
+                    sm="12">
                     <Button className="mr-1 mb-md-0 mb-1" type="primary" onClick={() => window.print()}>
                         <FileText size="15"/>
                         <span className="align-middle ml-50">Print</span>
