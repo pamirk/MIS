@@ -16,7 +16,12 @@ const nextConfig = {
         region: "us-east-1",
         Bucket: "bucketeer-c655f294-62a1-4abb-a015-7b4331d63cdd",
         PK: "PK"
-    }
+    },
+    
+    experimental: {
+        granularChunks: true,
+        modern: true,
+    },
 };
 module.exports = compose([[withCSS({
     cssModules: true,
