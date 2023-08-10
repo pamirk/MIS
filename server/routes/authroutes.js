@@ -48,6 +48,7 @@ router.post('/getConsumer', (req, res) => {
         const consumer = rows[0];
         console.log("success consumer: cnic is ", consumer.user_cnic);
 
+        // TODO: this needs to be fixed: using plaintext passwords is serious security problem
         const authenticated = (consumer.user_password === credentials.password);
 
         if (authenticated) {
