@@ -13,10 +13,10 @@ const auth = require('basic-auth');
 });*/
 
 const connection = mysql.createConnection({
-    host: 'us-cdbr-iron-east-05.cleardb.net',
-    user: 'b4dd17c9cc2562',
-    password: 'dbff6ed9',
-    database: 'heroku_28e8ad4c0632e52',
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE,
 });
 
 // This array is used to keep track of user records
